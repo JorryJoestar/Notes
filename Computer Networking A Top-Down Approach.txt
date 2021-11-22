@@ -1,0 +1,1087 @@
+chapter2
+	~Network Application Architectures											P116
+		-client-server architecture
+			data center
+		-peer-to-peer architecture
+			self-scalability
+	~socket																		P119
+		-the choice of transport protocol
+		-fix a few transport-layer parameters
+	~To identify the receiving process											P120
+		-IP address: the address of the host
+		-port number: an identifier that specifies the receiving process
+	~services of a transport-layer protocol										P121
+		-reliable data transfer
+		-throughput
+		-timing
+		-security
+	~TCP service 																P123
+		-connection-oriented service
+		-reliable data transfer service
+		-congestion-control mechanism
+		-no encryption
+	~Secure Sockets Layer (SSL)													P124
+		-an enhancement for TCP	
+		-implemented in the application layer
+	~UDP services 																P125
+		-connectionless
+		-unreliable data transfer service
+		-no congestion-control mechanism
+		-no encryption
+	~non-persistent/persistent connections 										P131
+	~round-trip time (RTT)														P133
+	~HTTP/2 																 	RFC 7540
+	~HTTP Request Message														P136
+		-request line
+			-method field
+				-GET
+				-POST
+				-HEAD
+				-PUT
+				-DELETE
+			-URL field
+			-HTTP version field
+		-header lines
+		-blank line
+		-entity body
+		*use GET method to include the inputted data in the requested URL
+	~HTTP Response Message														P138
+		-status line
+			-protocol version field
+			-status code
+			-corresponding status message
+		-header lines
+		-blank line
+		-entity body
+	～HTTP port number 80														P139
+	～Cookies																	P139 RFC 6265
+		-cookie header line in the HTTP response message
+		-cookie header line in the HTTP request message
+		-cookie file kept on the user’s end system
+		-a back-end database at the Web site
+	～Web cache (proxy server)													P142
+		-figure 2.11
+		-purchased and installed by an ISP
+		-reduce the response time for a client request
+		-reduce traffic
+	~conditional GET															P146
+		-a mechanism of HTTP
+		-allows a cache to verify that its objects are up to date
+		-uses the GET method & includes an If-Modified-Since: header line
+	~Internet mail system														P150
+		-Figure 2.14
+		-user agents
+		-mail servers
+		-Simple Mail Transfer Protocol (SMTP)
+	~SMTP																		P151 RFC 5321
+		-restricts all mail messages to simple 7-bit ASCII
+		-port number 25
+		-uses persistent connections
+		-client commands
+			-HELO
+			-MAIL FROM
+			-RCPT TO
+			-DATA
+			-CRLF.CRLF
+			-QUIT
+		-server replies with
+			-reply code
+			-English explanation (optional)
+	~mail message formats														P154 RFC 5322
+		-header lines
+			-From:
+			-To:
+			-Subject:
+		-blank line
+		-message body
+	~POP3 Post Office Protocol—Version 3										P156 RFC 1939
+		-port number 110
+		-three phases
+			-authorization
+				-sends a username and a password
+				-user agent commands
+					-user <username>
+					-pass <password>
+				-server responses
+				 	- +OK
+				 	- -ERR
+			-transaction
+				 -user agent commands
+				 	-list
+				 	-retr
+				 	-dele
+				 	-quit
+				 -mode
+				 	-download and delete
+				 	-download and keep
+				 -server responses
+				 	- +OK
+				 	- -ERR
+			-update 
+				-after the quit command
+	~IMAP Internet Mail Access protocol 										P159 RFC 3501
+		-associate each message with a folder
+		-allow users to create folders and move messages
+		-allow users to obtain just components of messages
+	~DNS domain name system														P160 RFC 1034 RFC 1035
+		-providing services
+			-translating hostnames to IP addresses								Figure 2.19
+			-host aliasing
+			-mail server aliasing
+			-Load distribution
+				-a set of IP addresses is associated with one hostname
+		-gethostbyname()
+		-a distributed database implemented in a hierarchy of DNS servers
+			-classes of DNS servers
+				-root DNS servers
+				-top-level domain (TLD) DNS servers
+				-authoritative DNS servers
+				-local DNS servers (default name server)
+					-maintained by local ISP
+		-DNS lookup process														P166
+			-query methods
+				-iterative queries												Figure 2.19
+				-recursive queries												Figure 2.20
+		-DNS caching															P168
+			-discard cached information after a period of time
+		-an application-layer protocol that used to query the database
+			-over UDP and uses port 53
+		-DNS Records and Messages												P169
+			-resource records (RRs)
+				(Name, Value, Type, TTL)
+				-TTL: time to be removed from a cache
+				-type A:
+					(hostname,IP address,A,TTL)
+				-type NS:
+					(domain,hostname of an authoritative DNS,NS,TTL)
+				-type CNAME:
+					(alias hostname,canonical hostname,CNAME,TTL)
+				-type MX:
+					(alias hostname,canonical name of a mail server,MX,TTL)
+			-DNS Messages
+				-query messages & eply messages format 							P170 Figure 2.21
+					-header section (12B)
+						-identification field (2B)
+							match received replies with sent queries
+						-flag field (2B)
+							-query/reply flag
+								0 if query or 1 if reply
+							-authoritative flag
+								1 if responsed by an authoritative server
+							-recursion-desired flag
+								1 if desires the DNS server perform recursion
+							-recursion-available field
+								1 if the DNS server supports recursion
+						-number of questions (2B)
+						-number of answer RRS (2B)
+						-number of authority RRs (2B)
+						-number of additional RRs (2B)
+					-questions
+					-answers
+					-authority
+					-additional information
+			-nslookup															P171
+			-inserting records into the DNS database
+				-registrar
+					-verifies the uniqueness of domain name
+					-enters the domain name into the DNS database 
+	~BitTorrent																	P179
+		-torrent
+			the collection of all peers
+		-chunks
+			typically 256 KBytes
+		-tracker
+			an infrastructure node
+		-operating mechanisms
+			-peers inform the tracker periodically
+				tracker keeps track of the peers that are participating
+			-new peer receives a list of a subset of peers
+			-new peer tries to establish TCP connections 
+				with peers on the list
+			-neighboring peers
+				all peers successfully connected
+			-ask neighboring peers for the list of the chunks they have
+			-rarest first
+				request those rarest chunks first
+			-determine which requests to respond
+				-unchoked peers
+					four peers responsing at the highest rate
+					recalculates every 10 seconds
+				-sending chunks to unchoked peers
+				-optimistically unchoked peer
+					every 30 seconds picks one additional neighbor randomly
+					sends it chunks
+	~Distributed Hash Table														P181
+	~Dynamic Adaptive Streaming over HTTP (DASH)								P183
+		-video encoded into different quality versions
+		-allow version changes during the session
+		-manifest file
+			-managed by HTTP server
+			-provides a URL for each version
+	~Content Distribution Networks (CDNs)										P184
+		-manages servers geographically distributed
+		-servers store copies of resources
+		-direct user request to a nearest CDN
+		-classes of CDNs
+			-private CDN
+			-third-party CDN
+		-server placement philosophies
+			-Enter Deep
+				-server clusters deployed in access ISPs widely
+				-decrease number of links to improve delay and throughput
+				-difficult to maintain and manage
+			-Bring Home
+				-build large clusters at a smaller number of sites
+				-typically placed in IXPs
+				-easy to maintain and manage
+		-content replicating strategy (similar Web caching)						P185
+			-stores the copy when client requests
+			-removes videos that are not frequently requested
+		-intercepting and redirecting a request
+			-user click a URL
+			-user's LDNS server send DNS query to website's 
+				authoritative DNS server
+			-website's authoritative DNS server returns hostname of its CDN
+			-user's LDNS server send DNS query to CDN's
+				authoritative DNS server
+			-user's LDNS receives IP of a CDN content server
+		-cluster selection strategy
+			-geographically closest
+			-real-time measurements
+				clusters periodically send probes to all LDNSs
+	~socket programming															P193
+		-UDPClient.py
+			from socket import *
+			serverName = ’hostname’
+			serverPort = 12000
+			clientSocket = socket(AF_INET, SOCK_DGRAM)
+			message = raw_input(’Input lowercase sentence:’)
+			clientSocket.sendto(message.encode(),(serverName, serverPort))
+			modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
+			print(modifiedMessage.decode())
+			clientSocket.close()
+		-UDPServer.py
+			from socket import *
+			serverPort = 12000
+			serverSocket = socket(AF_INET, SOCK_DGRAM)
+			serverSocket.bind((’’, serverPort))
+			print(”The server is ready to receive”)
+			while True:
+    			message, clientAddress = serverSocket.recvfrom(2048)
+    			modifiedMessage = message.decode().upper()
+    			serverSocket.sendto(modifiedMessage.encode(), clientAddress)
+    	-TCPClient.py
+    		from socket import *
+			serverName = ’servername’
+			serverPort = 12000
+			clientSocket = socket(AF_INET, SOCK_STREAM)
+			clientSocket.connect((serverName, serverPort))
+			sentence = raw_input(’Input lowercase sentence:’)
+			clientSocket.send(sentence.encode())
+			modifiedSentence = clientSocket.recv(1024)
+			print(’From Server: ’, modifiedSentence.decode())
+			clientSocket.close()
+		-TCPServer.py
+			from socket import *
+			serverPort = 12000
+			serverSocket = socket(AF_INET, SOCK_STREAM)
+			serverSocket.bind((’’, serverPort))
+			serverSocket.listen(1)
+			print(’The server is ready to receive’)
+			while True:
+    			connectionSocket, addr = serverSocket.accept()
+    			sentence = connectionSocket.recv(1024).decode()
+    			capitalizedSentence = sentence.upper()
+    			connectionSocket.send(capitalizedSentence.encode())
+    			connectionSocket.close()
+
+chapter3
+	~transport-layer multiplexing/demultiplexing								P228
+		-extend host-to-host delivery to process-to-process delivery
+		-transport-layer protocol provides
+			logical communication between processes
+		-network-layer protocol provides
+			logical-communication between hosts
+		-port number fields in segments
+			-source & destination port number field
+			-16-bit
+			-well-known port numbers from 0 to 1023
+		-TCP socket is identified by a four-tuple
+			-source IP address 
+			-source port number
+			-destination IP address
+			-destination port number
+	~UDP																		P238 RFC 768
+		-services
+			-multiplexing/demultiplexing
+			-integrity checking
+		-UDP segment structure 													Figure 3.7
+		 	-header (two bytes each)
+		 		-source port field
+		 		-destination port field
+		 		-length field 
+		 			number of bytes in the UDP segment (header + data)
+		 		-checksum field
+		 			error detection
+		 	-application data field
+		-UDP Checksum															P242 RFC 1071
+			-sender side
+				-perform sum of all the 16-bit words in the segment
+				-overflow during the sum being wrapped around
+				-performs the 1s complement of above
+			-receiver side
+				-perform sum of all the 16-bit words including the checksum
+				-1111111111111111 means no error
+			-end-end principle													P243
+				functions placed at the lower levels may be redundant or of 
+				little value when compared to the cost of providing them at the 
+				higher level
+	~reliable data transfer														P244
+		-assume the underlying channel will not reorder packets
+		-interfaces for reliable data transfer protocol  						P245 Figure 3.8(b)
+			-rdt_send()
+				upper layer -> rdt layer
+			-rdt_rcv()
+				lower layer -> rdt layer
+			-deliver_data()
+				rdt layer -> upper layer
+			-udt_send()
+				rdt layer -> lower layer
+		-ARQ (Automatic Repeat reQuest) protocols 								Figure 3.10
+			-Receiver feedback
+				positive/negative acknowledgments (ACK/NAK)
+			-error detection
+				checksum
+			-retransmission
+		-sequence number (alternating-bit protocol)								Figure 3.11/3.12
+			if ACKs or NAKs are corrupted, use sequence number to identify
+			duplicate packets
+		-NAK-free																Figure 3.13/3.14
+			-response two ACKs for the same packet to replace a NAK
+			-must include the sequence number in acknowledgments
+		-countdown timer														Figure 3.15
+			-retransmission after a given amount of time to solve packet loss
+		-pipelining																P260
+			-Go-Back-N (sliding-window)
+				-four sequence number intervals of the sender					Figure 3.19
+					-[0, base-1]
+						packets have been transmitted and acknowledged
+					-[base, nextseqnum-1]
+						packets have been sent but not acknowledged
+					-[nextseqnum, base+N-1]
+						packets wait for upper layer data and 
+						can be sent immediately
+					-[base+N, ...]
+						packets cannot be sent currently
+					-N window size
+						numbers of packets can be sent but not acknowledged
+				-FSM of GBN sender & receiver									P262 Figure 3.20/3.21
+					-NAK-free
+					-cumulative acknowledgment
+						n-ACK means all packets before n have been received
+					-send n-ACK only if n-1 packet has been received
+					-resend all unacknowledged packets if timeout/double ACK
+					-receiver discards out-of-order packets
+					-receiver deliver packets in order one at a time to upper
+			-selective repeat													P265
+				-intervals of the sender
+					-[0, send_base-1]
+						packets have been transmitted and acknowledged
+					-[send_base, nextseqnum-1]
+						packets have been sent and have/haven't acknowledged
+					-[nextseqnum, send_base-1+N]
+						packets wait for upper layer data and 
+						can be sent immediately
+					-[send_base+N, ...]
+						packets cannot be sent currently
+				-intervals of te receiver
+					-[0, rcv_base-1]
+						packets have received
+					-[rcv_base, rcv_base-1+N]
+						packets acceptable, some could have been received
+					-[rcv_base+N, ...]
+						not usable
+				-mechanism of SR 												P267 Figure 3.24/3.25
+					-each packet has a timer and retransmit individually
+					-individual acknowledgment
+						window moves only when send_base/rcv_base is 
+						acknowledged with all packets consecutively numbered
+					-receiver sends ACK for packets in [0, rcv_base-1]
+						instead of ignoring it
+			-(window size) must be <= (sequence number capacity) / 2
+		-if the underlying channel will reorder packets							P269
+			sequence number capacity should large enough to ensure any 
+			previously sent packets are no longer in the network, 
+			usually three minutes
+	~TCP																		P272 RFC 793, 1122, 1323, 2018, 2581
+		-TCP segment structure 													P275 Figure 3.29
+			-header fields (20bytes except opt field)
+				-source port number (2bytes)
+				-destination port number (2bytes)
+				-checksum field (2bytes)
+				-sequence number field (4bytes)
+					the byte-stream number of the first byte in the segment
+				-acknowledgment number field (4bytes)
+					the sequence number of the next byte receiver is expecting
+					-usually piggybacked on another data segment
+				-receive window (2bytes)
+					available free buffer space at the receiver
+				-header length field (4bit)
+					the length of the TCP header in 32-bit words
+				-flag field
+					-ACK bit
+						acknowledgment field valid
+					-RST bit
+						inform that the required port is unavailable
+					-SYN bit
+						SYN/SYNACK 1, others 0
+					-FIN bit
+						FIN segment is used to end connection
+					-CWR bit
+						(Congestion Window Reduced)
+						set by sender to inform that cwnd has been halved
+					-ECE bit
+						(Explicit Congestion Notification Echo)
+						set by sender in an ACK to inform congestion
+					-PSH bit
+						ask receiver to pass data to upper layer immediately
+					-URG bit
+						means some data in segment is urgent
+				-urgent data pointer field (2bytes)
+					location of the last byte of the urgent data
+				-options field  												RFC 854 1323
+					negotiate MSS
+					time-stamp
+			-data field
+				-maximum segment size (MSS)
+					maximum amount of application-layer message in the segment
+				-maximum transmission unit(MTU)
+					length of the largest link-layer frame
+					MSS + TCP/IP header length <= MTU
+		-RRT estimation and timeout												P280
+			-SampleRTT
+				-most TCP implementations take only one SampleRTT measurement 
+					at a time
+				-never computes a SampleRTT for a retransmitted segment
+			-EstimatedRTT
+				= (1−α)⋅EstimatedRTT+α⋅SampleRTT (recommended α 0.125)
+			-DevRTT
+				= (1−β)⋅DevRTT+β⋅|SampleRTT−EstimatedRTT| (recommended β 0.25)
+			-TimeoutInterval
+				=EstimatedRTT+4⋅DevRTT
+				-if timeout, double TimeoutInterval
+					(a simple congestion control)
+				-if receive a segment, the TimeoutInterval reuses the formula
+		-reliable data transfer													P283
+			-fast retransmit mechanism 											P288 Table 3.2
+				-adopted by some certain TCP version
+				-three duplicate ACKs as an implicit NAK
+			-TCP is a hybrid of GBN and SR protocols
+				-TCP uses cumulative acknowledgments
+				-usually buffer disorder segments
+		-flow control 															P291
+			-UDP do not adopt flow control
+			-throttle sender to prevent receiver’s buffer overflow
+			-reveive window
+				rwnd, available free buffer space at the receiver
+			-variables of receiver
+				-LastByteRead
+					number of last byte read from buffer by receive process
+				-LastByteRcvd
+					number of last byte received by receive buffer
+				-rwnd
+					=RcvBuffer − [LastByteRcvd−LastByteRead]
+					the amount of spare room in the buffer
+				-LastByteRcvd−LastByteRead ≤ RcvBuffer
+			-variables of sender
+				-LastByteSent
+				-LastByteAcked
+				-LastByteSent − LastByteAcked ≤ rwnd
+			-prevent sender be blocked when rwnd = 0 and no ACK with new rwnd
+				continue to send segments with one data byte when rwnd = 0
+		-TCP connection management												P294
+			-three-way handshake
+				-client TCP sends a SYN segment
+					-SYN bit set to 1
+					-client_isn
+						puts a randomly initial sequence number in sequence 
+						number field
+					-contains no application-layer data
+				-server TCP allocates buffers and variables to the connection
+				-server sends a SYNACK segment
+					-contains no application-layer data
+					-SYN bit set to 1
+					-acknowledgment field set to (client_isn + 1)
+					-server_isn
+						puts another randomly initial sequence number in 
+						sequence number field
+				-client TCP allocates buffers and variables to the connection
+				-client sends another segment to acknowledge SYNACK
+					-puts (server_isn+1) in the acknowledgment field
+					-puts (client_isn+1) in the sequence number field
+					-SYN bit set to 0
+					-may contain application-layer data
+			-closing TCP connection
+				-either of sender&receiver can end the connection
+				-host A sends a FIN segment and  acknowledged by host B
+				-host B sends a FIN segment and  acknowledged by host A
+				-resources in two hosts are deallocated
+			-TCP states 														P297
+				-client TCP states 												Figure 3.41
+				-server TCP states 												Figure 3.42
+			-RST segment (reset segment)
+				to answer a SYN segment that the required port is unavailable
+				and do not send SYN segment again
+			-prevent Syn Flood Attack 											P299
+				-Syn Flood Attack
+					send large amount of SYNs but do not acknowledge SYNACK
+					to waste server's connection resource
+				-SYN cookies
+					SYN with special initial sequence number that generated by
+					a hash function with IP addresses and port numbers and a 
+					secret number
+				-prevent mechanism
+					-do not allocate resource immediately after received SYN
+					-only allocate resource after an ACK of SYNACK is verified
+						by SYN cookies
+	~congestion control 														P302
+		-causes and costs of congestion
+			-large queuing delays
+				packet-arrival rate nears the link capacity
+			-unneeded retransmissions
+				large delays may forward unneeded copies of a packet
+			-transmission capacity waste
+				dropping a packet because of buffer overflow wastes 
+				transmission capacity of upstream links to forward that packet 
+				to dropping point
+		-congestion control approaches
+			-End-to-end congestion control
+				-network layer provides no explicit support
+				-adopted by TCP
+				-use segment loss & delay to infer congestion
+				-TCP decreases its window size accordingly
+			-Network-assisted congestion control
+				-routers provide explicit congestion state
+				-routers inform the sender of maximum available sending rate
+				-optional to TCP
+				-feedback methods
+					-direct feedback from routers by sending a choke packet
+					-router marks a field in a packet to inform receiver and
+						the receiver notifies sender of congestion
+	~TCP congestion control 													P311
+		-congestion window (cwnd)
+			-LastByteSent − LastByteAcked ≤ min{cwnd, rwnd}
+			-adjust cwnd to control sending rate
+		-congestion perception
+			a timeout or receipt of three duplicate ACKs
+		-principles to determine sending rate
+			-decrease rate when a segment is lost
+			-increase rate when receiving an ACK
+			-bandwidth probing
+				increase rate with ACKs until a loss occurs so decrease rate 
+				and repeat again
+		-TCP congestion-control algorithm										Figure 3.51
+			-slow start
+				-cwnd initialized to 1 MSS,set a initial ssthresh
+				-cwnd increases 1 MSS every time a  segment is acknowledged
+					results in a doubling of sending rate every RTT
+				-a timeout results 
+					-ssthresh to cwnd / 2
+					-cwnd to 1
+				-when (cwnd = ssthresh) 
+					-enter congestion avoidance
+				-three duplicate ACKs 
+					-ssthresh to cwnd / 2
+					-cwnd to ssthresh + 3MSS
+					-enter fast recovery
+			-congestion avoidance
+				-increase cwnd by a single MSS every RTT 
+					= increase MSS/(MSS/cwnd) per ACK
+				-a timeout results
+					-ssthresh to cwnd / 2
+					-cwnd to 1
+					-enter slow start
+				-three duplicate ACKs 
+					-ssthresh to cwnd / 2
+					-cwnd to ssthresh + 3MSS
+					-enter fast recovery
+			-fast recovery (optional to TCP)
+				-duplicate ACK
+					increase cwnd by a MSS 
+				-new ACK
+					cwnd = ssthresh
+					enter congestion avoidance
+				-a timeout results
+					-ssthresh to cwnd / 2
+					-cwnd to 1
+					-enter slow start
+		-fairness																P321
+			-connections with small RTT take more bandwidth
+			-UDP takes bandwidth at will
+			-multiple parallel connections take corresponding portion of
+				bandwidth
+		-Explicit Congestion Notification (ECN) 								Figure 3.56
+			-ECN bits in IP datagram header (2 bits)
+				-first bit
+					1 if a router is congested and set by the router
+				-second bit
+					1 to inform routers that the sender and receiver are 
+					ECN-capable by the sending host
+			-receiver realise a congestion by ECN bits and infrom the sender
+				by setting ECE to 1 in an ACK to the sender
+			-sender halves cwnd and set CWR to 1 in the next segment to inform
+			 	the receiver that cwnd has been halved
+
+chapter4
+	~overview
+		-forwarding/switching (data plane)
+			the router-local action of transferring a packet from an input link
+			interface to the appropriate output link interface
+		-forwarding table
+			an element in every network router used to find out outgoing link
+			according to header values of the packet, determined by routing
+			algorithm
+		-routing (control plane)
+			the network-wide process that determines the end-to-end paths that
+			packets take from source to destination
+		-routing functionality implement types 									P352
+			-traditional approach
+				each routers have routing functions and they exchange
+				information with other routers to compute forwarding tables
+			-SDN approach (software-defined networking)
+				no routing function in each router, it is stored in a seperate
+				remote data center
+	~router architecture 														P358 Figure 4.4
+		-input ports
+		-output ports
+		-switching fabric
+		-routing processor
+			SDN routers also have routing processor which used to communicate
+			with the remote controller, usually implemented in software
+	~input processing 															P361 Figure 4.5
+		-lookup is done in input port according to the forwarding table
+		-determining output port
+			determine according to destination address, each output link has a
+			destination address prefix, follow longest prefix matching rule
+		-blocking, queuing, and scheduling of packets
+			some designs would block the packet and put it in queue in
+			current input port and schedule them
+	~switching 																	P364 Figure 4.6
+		-switching via memory
+			switching under direct control of the CPU, two packets can not be
+			forwarded at the same time
+		-switching via a bus
+			pre-pend a switch-internal label (header) to the packet, all output
+			port expect the destination one ignore it, can only transfer one
+			packet at the same time
+		-switching via an interconnection network
+			use a crossbar switch, switch fabric controller can determine which
+			cross to close, packet with different destination can be transfer
+			at the same time
+	~queuing 																	P366
+		-input queuing
+			head-of-the-line (HOL) blocking: if follow FCFS, when first packet
+			blocked then the whole queue gets blocked
+		-output queuing
+			it is advised to drop some packets before buffer is full in order
+			to provide a congestion signal to the sender
+		-buffer size
+			buffer sizing is advised to be equal to an average round-trip time 
+			(RTT) times the link capacity (C)
+	~packet scheduling (for output link)										P370
+		-first-in-first-out (FIFO)
+		-priority queuing
+			using multiple queues with various priorities, adopt non-preemptive
+			strategy
+		-round robin and weighted fair queuing (WFQ)
+			round robin between different classes of packets
+			weighted fair queuing (WFQ): the heavier workload a class has, the 
+			more time it is allocated
+	~IPv4 datagram 																P377
+		-format 																Figure 4.16
+			20 bytes of header if no options
+		-fragmentation 															P379
+			-link-layer protocols can carry different maximum size of datagram
+			-reassembling fragments is done by end systems
+			-identification, flag, and offset fields
+				-identification
+					all fragments of a datagram with same identification
+				-flag
+					to indicate the last fragment is received, last fragment
+					has a flag bit set to 0, all others are set to 1
+				-offset
+					specify where the fragment fits in the original datagram
+		-addressing 															P381
+			-interface
+				IP address is associated with an interface
+			-subnet mask 														P382 Figure 4.18
+				223.1.1.0/24 indicates all interfaces within this subnet has
+				identical leftmost 24 bits IP address
+			-classless interdomain routing (CIDR) 								P383
+				only these leading prefix bits are considered by routers 
+				outside the subnet, the prefix bits is called network portions
+				of the IP address
+				-classful addressing
+					an addressing scheme before CIDR was adopted that network 
+					portions can only be 1,2 or 3 bypes which known as class A, 
+					B, and C networks, the scheme wastes IP address
+			-IP broadcast address
+				destination address 255.255.255.255 means sending the datagram
+				to all hosts in the subnet, 0.0.0.0 means this host
+			-obtaining a block of addresses 									P387
+				apply for addresses from ISP, ISPs also apply for addresses
+				from other organizations and ultimately from ICANN, it also
+				manage the DNS root servers
+			-dynamic host configuration protocol (DHCP)							P388
+				assign and configure IP address for interfaces, it provides
+				some information like address of its first-hop router (default
+				gateway) and address of its local DNS server
+				-DHCP server
+					DHCP is a client-server protocol, if no DHCP server in the
+					subnet, a router who knows the address of a DHCP server can
+					act as a DHCP relay agent
+				-procedure to allocate an IP address 							P389
+					 -DHCP discover
+					 	the new client sends a DHCP discover message, using UDP
+					 	at port 67, destination IP address of 255.255.255.255,
+					 	source IP destination 0.0.0.0, broadcasts it to subnet
+					 -DHCP offer
+					 	DHCP responses with a DHCP offer message, with IP
+					 	broadcast address of 255.255.255.255, contains
+					 	transaction ID, proposed IP address, network mask and
+					 	IP address lease time
+					 -DHCP request
+					 	choose from offers and respond with a DHCP request
+					 	message, returning some configuration parameters
+					 -DHCP ACK
+					 	server responds to the DHCP request message with a DHCP
+					 	ACK message, confirming the requested parameters
+		-network address translation (NAT) 										P392
+			-private network (realm with private addresses)
+				three portions of IP address space are reserved for private
+				network, they are not allowed to be used in public network
+			-NAT-enabled router
+				behaves to the outside world with a single IP address, it acts
+				like a DHCP server and provides private IP addresses to devices
+				in the private network
+			-NAT translation table
+				NAT maps private IP address and port number of source interface
+				with a new port number, insert the map into table
+		-IPv6
+			-IPv6 datagram format 												P396 Figure 4.26
+				-size of the IP address is increased to 128 bits, introduces a 
+					new type of address called anycast address
+				-header is fixed to 40
+				-no fragmentation/reassembly allowed in IPv6, if a datagram is
+					over-sized then the router drops it and sends an ICMP error
+					message to the sender
+				-no checksum in IPv6
+			-transitioning from IPv4 to IPv6 									P398
+				-tunnel: 
+					intervening set of IPv4 routers between two IPv6 routers
+				-encapsulation
+					reach a tunnel, encapsulates IPv6 datagram into a IPv4
+					datagram data field with destination IP address to next
+					IPv6 router and port number 41
+	~generalized forwarding
+		-packet switch
+			forwarding devices may use network-layer and/or link-layer source 
+			and destination addresses, so it is more accurate to call them 
+			packet switches
+		-match-plus-action table (flow table) 									P403
+			table used by packet switches is called match-plus-action table,
+			computed by a remote controller
+		-table entry includes
+			-a set of header field values
+			-a set of counters
+				updated when a packet is matched by a table entry, includes
+				number of packets matched by the table entry and
+				last-modified-time
+			-a set of actions
+				forward, drop or send it to multiple output ports
+		-matching 																P404 Figure 4.29
+			some fields can have wildcards like IP address of 128.119.*.*, 
+			table entry has priority, packet matches the entry with highest
+			priority
+
+chapter5
+	~routing algorithms 														P426
+		-link-state routing algorithm (LS)
+			-broadcast link-state packets to all other nodes in the network,
+				resulting all nodes have a complete view of the network
+			-use Dijkstra’s algorithm to compute least cost paths to all other
+				nodes from the source node
+		-distance-vector routing algorithm (DV) 								P433
+			-Bellman-Ford equation
+				dx(y)=minv{c(x,v)+dv(y)}	
+				dx(y) means cost of the least-cost path from node x to node y
+			-DV algorithm
+				-distance vector
+					maintained by every router, stores costs to all
+					destinations, initial with the cost to its neighbours
+				-update
+					when receives vector from neighbours, it updates vector
+					using Bellman-Ford equation, sends new vector to neighbours
+			-routing loop (count-to-infinity problem)							P439 Figure 5.7
+				to get to x, y routes through z, and z routes through y
+			-poisoned reverse
+				if y gets z through x, in the vector it sends to x, it lies
+				that the distance from y to z is infinite, avoiding routing
+				loop but can not avoiding loops involving three or more nodes
+	~Intra-AS Routing in the Internet: OSPF protocol 							P442
+		-autonomous systems (ASs)
+			to solve the scale and administration problems, routers are
+			organised into ASs, AS has a globally unique autonomous system
+			number (ASN)
+		-intra-autonomous system routing protocol
+			within one AS the routers must run the same routing algorithm
+		-open shortest path first (OSPF)
+			-adopts Dijkstra’s algorithm
+			-routers broadcast their information so every node has a complete
+				understanding of the whole AS
+			-routers seperately calculate the forwarding table
+			-OSPF has a number 89 based on IP protocol
+	~routing among the ISPs: BGP protocol 										P446
+		-in BGP, packets are routed according to prefix
+		-advertising BGP route information
+			-gateway router
+				on the edge of AS, connected with other AS
+			-BGP port number 179, based on TCP
+			-BGP connection
+				-external BGP (eBGP) connection: between routers in different
+					ASs
+				-internal BGP (iBGP) connection: between routers in the same AS
+		-best routes determination 												P449 Figure 5.10
+			-BGP route
+				-NEXT-HOP
+					list of ASs through which the advertisement has passed, can
+					prevent looping advertisements
+				-AS-PATH
+					IP address of gateway to get the first AS in NEXT-HOP
+				-destination prefix
+			-hot potato routing algorithm
+				choose the gateway that has the smallest cost
+			-route-selection algorithm (practically used in BGP)
+				1.select route with highest local preference attribute
+				2.route with the shortest AS-PATH is selected, similar to DV
+				3.hot potato routing
+				4.uses BGP identifiers to select the route
+		-IP-Anycast 															P453
+			DNS system assigns one IP address to multiple servers, so BGP can
+			automatically choose the nearest one
+	~SDN control plane 															P459 Figure 5.14
+		-two components
+			-SDN controller 													Figure 5.15
+				-communication layer
+					communicate between SDN controller and packet switches,
+					called southbound interface
+				-network-wide state-management layer
+					determine flow tables for packet switches
+				-interface to the network-control application layer
+					called northbound interface, 
+			-SDN network-control applications
+		-OpenFlow protocol 														P464
+			-operates between SDN controller and SDN-controlled switch
+			-over TCP, port number 6653
+			-messages from controller to switch
+				-configuration
+					query and set a switch’s configuration parameters
+				-modify-state
+					add/delete or modify entries in the switch’s table
+				-read-state
+					collect statistics and counter values from switch's table
+				-send-packet
+					send a packet out of a specified port at the switch
+			-messages from switch to controller
+				-flow-removed
+					informs controller a flow table entry has been removed
+				-port-status
+					inform controller of a change in port status
+				-packet-in
+					a packet not matching any entry is sent to the controller
+	~Internet control message protocol (ICMP) 									P472
+		-used to communicate network-layer information
+		-above IP, using transport layer protocol number 1
+		-ICMP message types 													Figure 5.19
+	~network management and SNMP 												P475
+		-key components of network management 									P476 Figure 5.20
+			-managing server
+			-managed device
+				managed objects within a managed device, they are hardware or
+				configuration parameters
+			-management information base (MIB)
+				collect information of managed objects
+			-network management agent
+				a process in managed device that communicates with managing
+				server
+			-network management protocol
+				runs between managing server and devices, enable server to
+				query the status of managed devices, enable devices to inform
+				managing server of exceptional events
+		-simple network management protocol (SNMP) 								P478
+			-protocol data units (PDUs) 										table 5.2
+
+chapter6
+	~services provided by link layer 											P497
+		-framing
+			encapsulate datagram within a frame before transmission
+		-link access
+			medium access control protocol helps coordinate frame transmissions
+			especially in broadcast link
+		-reliable delivery
+			optional to link layer protocols, realise local error correction by
+			acknowledgments and retransmissions to decrease burden of end hosts
+		-error detection and correction
+			more sophisticated and implemented in hardware compared with
+			checksum in transport and internet layer
+		-implementation of link layer
+			most in hardware network adapter, some software runs in CPU
+	~error-detection and correction 											P500
+		-parity checks
+			-even parity scheme 												Figure 6.4
+				add one bit to ensure number of 1s in the d+1 bits is even, can
+				not detect even number of bit errors
+			-two-dimensional generalization										Figure 6.5
+				d bits are divided into i rows and j columns, generate i+j+1
+				parity bits, can detect and correct a single bit error or just
+				detect two errors
+			-forward error correction (FEC)
+				ability of the receiver to both detect and correct errors
+		-checksumming methods 													
+			TCP and UDP compute checksum from header and data, IP only computes
+			it from header
+		-cyclic redundancy check (CRC)
+			shift left data d n bits, divides it by a r+1 bit agreed number G
+			by sender and receiver, do XOR on left shifted d and the remainder,
+			send the result to receiver, receiver divides it by G if remainder
+			is not 0, there is some corruption
+	~multiple access links and protocols 										P507
+		-collision
+			more than two nodes transmit frames at the same time, and frams are
+			lost
+		-channel partitioning protocols
+			-FDM & TDM
+				avoid collisions and ensure fairness, but poor in performance
+			-code division multiple access (CDMA)
+				assigns codes to nodes
+		-random access protocols
+			-when collision, all nodes involved select a random delay to
+				retransmit
+			-slotted ALOHA protocol 											P512
+				-nodes are synchronized so they know when the slots begin
+				-all nodes detect collision when it happens
+				-nodes send frames at the beginning of slot
+				-if collision, node retransmits its frame in each subsequent
+					slot with probability p until the frame is transmitted
+				-advantages
+					high utilization when few nodes, also highly decentralized
+				-disadvantage
+					when number of nodes increase, maximum efficiency decreases
+					to 37 percent of the full transmission rate 
+			-ALOHA protocol 													P514
+				-nodes transmit frame immediately receiving it from upper layer
+				-if collision, retransmit the frame with probability p
+				-only get half of maximum efficiency of slotted ALOHA
+			-carrier sense multiple access (CSMA) 								P515
+				-carrier sensing
+					listens to the channel, waits until no transmissions for a
+					short amount of time and begins transmission
+				-channel propagation delay
+					resulting collision
+			-carrier sense multiple access with collision dection (CSMA/CD) 	P517
+				-also has the feature of carrier sensing
+				-collision detection
+					listens to the channel when transmitting, if another node
+					is transmitting, stops and waits a random amount of time
+					before repeating
+				-binary exponential backoff algorithm
+					retransmission interval increases with the number of
+					collisions, if n collisions choose K from {0,1,...,(2^n)-1}
+					and waits K*(512 bit times), 512 is typically for Ethernet
+				-efficiency of CSMA/CD
+					efficiency increases with the increase of time to transmit
+					a maximum-size frame and the decrease of maximum time to
+					propagate between any two adapters
+		-taking-turns protocols 												P520
+			-polling protocol
+				a master node polls nodes in a round-robin, used in 802.15
+				protocol and the Bluetooth protocol
+			-token-passing protocol
+				a special frame called token is passed accross nodes, who gets
+				the token can send a maximum number of frames and pass token to
+				the next node
+	~switched local area networks 												P524
+		-MAC address
+			-adapters have a unique 6 bytes long MAC address
+			-switch would broadcast frames to all linked nodes, but nodes can 
+				determine whether to discard the frame from its destination MAC
+				address
+			-broadcast address: FF-FF-FF-FF-FF-FF
+		-address resolution protocol (ARP) 										P527
+			-translate between IP address and MAC address on the same subnet
+			-ARP table
+				stored in hosts and routers, contains mappings of IP addresses
+				to MAC addresses
+			-resolve MAC address when no entry in ARP table
+				-sender sends an ARP query packet to consult all other hosts
+					and routers on the subnet
+				-adapter receives the query and passes it to ARP module, if its
+					IP address matches, sends back a response ARP packet with
+					the desired mapping
+		-Ethernet 																P532
+			-hub
+				physical-layer device, acts on individual bits, recreates bits,
+				boosts energy strength, transmits them to all other interfaces
+			-Ethernet frame structure 											Figure 6.20
+				-data field (46 to 1,500 bytes)
+					maximum transmission unit (MTU) of Ethernet is 1,500 bytes
+				-destination address (6 bytes)
+				-source address (6 bytes)
+				-type field (2 bytes)
+					used to multiplex network-layer protocols
+				-cyclic redundancy check (CRC) (4 bytes)
+				-preamble (8 bytes)
+					used to synchronize clocks
+		-link-layer switches 													P537
+			-filtering
+				switch function that determines if a frame should be forwarded
+				or dropped, done by switch table
+			-forwarding
+				switch function that determines which interfaces a frame should
+				be directed to, done by switch table
+			-switch table
+				entry contains MAC address, interface to that MAC address, time
+				when the entry is placed in the table
+				-forwarding strategy
+					-if no matched entry, broadcast the frame
+					-if matched entry has destination interface that identical
+						to the comming interface, discard it
+					-if matched entry has different destination interface with
+						the comming interface, put it in the destination
+						interface buffer
+			-self-learning 														P539
+				table is built automatically, dynamically
+				-strategy
+					-switch table initially empty
+					-when receive a frame, insert an entry mapping the source
+						interface and source MAC address
+					-delete an entry if the MAC address receive no frames
+						within aging time
+			-properties
+				-elimination of collisions
+				-heterogeneous links
+					adaptive to different speeds and different media
+				-management
+		-virtual local area networks (VLANs) 									P543 Figure 6.25
+			-some switches have the function to define multiple VLANs on a
+				physical LAN
+			-ports in each VLAN forming a broadcast domain
+			-modern switches usually have router function to allow traffic
+				between different VLANs
+			-VLAN trunking
+				select a port and configure it as a trunk port to interconnect
+				two VLAN switches, the trunk belongs to all VLANs, add VLAN tag
+				to identify which VLAN a frame belongs to
+
+
+

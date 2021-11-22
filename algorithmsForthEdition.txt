@@ -1,0 +1,120 @@
+chapter1
+	~Dijkstra's Two-Stack Algorithm for Expression		P129
+	~Generics											P134
+	~Iteration											P138
+	~stack pop sequence check							P161 1.3.3
+	~parentheses check									P161 1.3.4
+	~permutation sequence algorithm
+	~reasons for failing from analyzing performance		P195
+	~union-find											P216
+		-quick-find
+		-quick-union
+		-weighted quick-union
+		-path compression
+
+chapter2
+	~comparable											P247
+	~selection sort										P248
+	~insertion sort										P250
+	~partially sorted 									P252
+	~shellsort											P258
+	~mergesort											P270
+		-top-down mergesort
+		-bottom-up mergesort
+	~quicksort											P288
+	~dutch national flag								P298
+	~priority queues									P308
+	~heap												P313
+	~heapsort											P323
+	~comparator											P340
+	~stability											P341
+	~performance characteristics of sorting 			P342
+	
+chapter3
+	~symbol table										P362
+	~sequential search									P374
+	~binary search										P380
+	~binary search tree									P396
+	~inorder traversal									P412
+	~2-3 search tree									P424
+	~red-black BST										P432
+	~hash table											P458
+		-modular hashing
+		-separate chaining
+		-linear probing
+	~SET 												P489
+	
+chapter4
+	~undirected graphs									P518
+		-acylic graph
+		-bipartite graph
+	~depth-first search									P530
+	~breadth-first search								P538
+	~connected components								P544
+	~symbol graphs										P548
+	~directed graphs									P566
+	~scheduling problem									P574
+		-directed cycle detection						P576
+		-topological sort								P578
+	~strong connectivity								P584
+	~Kosaraju's algorithm								P586
+	~transitive closure									P592
+	~minimum spanning tree								P604
+	~cut property										P606
+	~greedy algorithm									P607
+	~Prim’s algorithm									P616
+		-lazy implementation
+		-eager implementation
+	~Kruskal’s algorithm								P624
+	~shortest path										P638
+	~shortest paths' tree								P640
+	~Dijkstra's algorithm 								P652
+	~DAG shortest path 									P660
+	~longest paths tree									P662
+	~critical path method								P663
+	~Bellman-Ford algorithm 							P671
+	~arbitrage											P679
+
+chapter5
+	~key-indexed counting								P703
+	~LSD string sort 									P706
+	~MSD string sort 									P710
+	~three-way string quicksort							P719
+	~R-way trie 										P732
+	~ternary search trie 								P746
+	~brute-force substring search						P760
+	~Knuth-Morris-Pratt substring search 				P762
+	~deterministic finite-state automaton 				P764
+	~Boyer-Moore substring search 						P770
+	~Rabin-Karp fingerprint search						P774
+	~regular expression									P788
+	~NFA												P794
+	~NFA simulation										P797
+	~Build NFA from RE 									P800
+	~data compression									P810
+	~alphabet											P819
+	~run-length encoding 								P822
+	~huffman compression 								P826
+	~LZW compression									P839
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+	
+	
