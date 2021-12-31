@@ -1,0 +1,1599 @@
+chapter1
+	~database management system components															P5 figure1
+		-commands sources
+			-conventional users and application programs
+				ask for and modify data
+			-database administor
+				responsible for structure and schema of database
+		-commands
+			-data-definition language commands (DDL)
+			-data-manipulation language commands (DML)
+		-ACID properties of transactions 															P9
+			-atomicty
+			-consistency
+			-isolation
+			-durability
+
+chapter2 the relational model of data
+	~data model 																					P13
+		notation to describe data or information
+		-description parts
+			-structure of the data
+			-operations on the data
+			-constraints on the data
+		-types
+			-relational model
+			-semistructured-data model
+		-relations = tables
+	~relational model  																				P18
+		-attributes
+			columns of a relation
+		-schemas
+			-the name of a relation and the set of attributes
+			-"relation_name(attribute1,attribute2,...)"
+			-attributes are a set not list, but a standard order is usually specified
+		-database schema
+			collection of all the schemas within the database
+		-tuples
+			-rows of a relation except header
+			-"(field1,field2,...)"
+		-domains
+			-domain = data type of each attribute
+			-can only be elementary type
+			-can be appended in schema: 
+				"relation_name(attribute1:type1,attribute2:type2,...)"
+		-equivalent representations of a relation
+			order of tuples and attributes does not matter
+		-relation instance
+			a set of tuples for a given relation
+		-keys
+			-a fundamental kind of constraint
+			-formed by a set of attributes
+			-unique for tuples
+	~defining a relation schema in SQL 																P25
+		-relation types in SQL
+			-stored relations 
+				= tables
+			-views
+				defined by a computation but not stored
+			-temporary tables
+				constructed by SQL but thrown away, stored
+		-data types
+			-CHAR(N)/VARCHAR(n)
+			-BIT(n)/BIT VARYING(n)
+			-BOOLEAN
+			-INT/INTEGER/SHORTINT
+			-FLOAT/REAL/DOUBLE PRECISION/DECIMAL(n,d)/NUMERIC(n,d)
+			-DATE/TIME
+		-table declaration
+			CREATE TABLE table_name(
+				attribute1	type1,
+				attribute2	type2,
+				...
+			);
+		-modifying relation schemas
+			-remove entire table
+				DROP TABLE r;
+			-modify a table to add or drop an attribute
+				ALTER TABLE table_name ADD attribute_name data_type;
+				ALTER TABLE table_name DROP attribute_name;
+		-default values
+			CREATE TABLE table_name(
+				attribute1	type1 DEFAULT default_value,
+				...
+			);
+			ALTER TABLE table_name ADD attribute_name data_type DEFAULT default_value;
+		-declar keys
+			-key words
+				-PRIMARY KEY
+					issued attribute can not be NULL
+				-UNIQUE
+					NULL is permitted
+			-declarance
+				CREATE TABLE table_name(
+					attribute1	type1 PRIMARY KEY,
+					attribute2	type2,
+					...
+				);
+				CREATE TABLE table_name(
+					attribute1	type1,
+					attribute2	type2,
+					...
+					PRIMARY KEY(attribute1,attribute2, ...)
+				);
+	~query language 																				P34
+		-operation classes
+			-usual set operations 
+				(relations should have identical attributes, domains and orders)
+				-union					R ∪ S 						U
+				-intersection			R ∩ S
+				-difference				R - S 						U
+				-quotient 				R ÷ S
+			-remove operations
+				-selection				σc (R) 						U
+				-projection				π attr1,attr2,... (R) 		U
+			-combine operatons
+				-Cartesian product		R × S 						U
+				-natural joins 			R ⋈	S
+				-theta-joins 			R ⋈c S
+				-semi joins 			R ⋉ S
+			-rename operations			ρ S(A1,A2,...,An) (R) 		U
+		-operation relationships
+			- R ∩ S  = R - (R - S)
+			- R ⋈c S = σc(R × S)
+			- R ⋈ S  = πL(σc(R × S))
+			- R ⋉ S  = πr(R ⋈ S)  	 			(r is the schema of R)
+			- R ÷ S  = π A1,A2,...,An (R ⋈ S)	(A1,A2,...,An are attributes in R not in S)
+	~constraints 																					P54
+		-relational algebra as a constraint language
+			- R = Ø
+			- R ⊆ S (R - S = Ø)
+		-referential integrity constraints
+			-any value v in attribute A in relation R, must appear in attribute B in relation S
+			-πA(R) — πB(S) = Ø 			(πA(R) ⊆ πb(S))
+		-key constraints
+			ρ s1(A1,A2,...,An) (R) 
+			ρ s2(A1,A2,...,An) (R)
+			σ s1.key1 = s2.key1 AND s1.key2 = s2.key2 AND ... AND s1.a1 ≠ s2.a1 (s1 × s2) = Ø
+		-permitted values
+			-type constrains
+			-values restricted to a small enumerated set
+			σ gender ≠ 'F' AND gender ≠ 'M' (MovieStar) = Ø
+
+chapter3 design theory for relational databases
+	~functional dependencies  (FD)																	P63
+		-definition
+			if two tuples agree on A1,A2,...An, then they must also agree on B1,B2,...Bm
+			say A1,A2,...An functionally determine B1,B2,...Bm
+			notation: A1A2...An -> B1B2...Bm
+		-keys of relations
+			a set of attributes is a key if
+				1. these attributes determine all other attributes
+				2. no subset of these attributes functionally determines all other attributes(minimal)
+		-superkey
+			a set of attributes contains a key, can violate minimality
+		-rules
+			-equivalent & follow from 																P69
+			-splitting rule
+				A1A2...An -> B1B2...Bm  can be splitted to:
+				A1A2...An -> B1, A1A2...An -> B2, ... A1A2...An -> Bm
+			-combining rule 
+				A1A2...An -> Bi for i=1,2,...m can be combined to:
+				A1A2...An -> B1B2...Bm
+			-trivial FD
+				a trivial FD has a right side that is a subset of the left side
+			-trivial-dependency rule
+				A1A2,...An -> B1B2...Bm is equivalent to A1A2...An -> C1C2...Ck
+					where C's = B's - A's
+			-closure of attributes
+				-aim: test whether any given FD A1A2...An -> B follows from a set of FD's S
+				-notation: {A1,A2,...,An}+
+				-algorithm: 																		P72
+					1. split FD's of S
+					2. let X be result and initialize X to be {A1,A2,...An}
+					3. repeatedly search for FD B1B2...Bm -> C that B1,B2,...Bm in X but C, add C to X
+			-key and closure
+				if {A1,A2,...An}+ is the set of all attributes, {A1,A2...An} is a superkey
+				if no closure of proper subset of {A1,A2...An} is set of all attributes, {A1,A2...An} is a key
+			-Armstrong's axioms 																	P77
+				-reflexivity
+					if {B1,B2,...,Bm} ⊆ {A1,A2,...,An} then A1A2...An -> B1B2...Bm
+				-augmentation
+					if A1A2...An -> B1B2...Bm, then A1A2...AnC1C2...Ck -> B1B2...BmC1C2...Ck
+				-transitivity
+					A1A2...An -> B1B2...Bm and B1B2...Bm -> C1C2...Ck, then A1A2...An -> C1C2...Ck
+			-minimal basis 																			P76
+				-basis: any set of FD's equivalent to S
+				-minimal basis definition:
+					1. all FD's in it have singleton right sides
+					2. it is no longer a basis if any FD is removed
+					3. it is no longer a basis if remove attribute(s) from the left side of any FD
+			-projecting FD's
+				-caculate FD's of R1, where R1 = πL(R), R has FD's S
+				-algorithm:
+					1. let T be the result, initially be empty
+					2. compute closures of all subsets of R1's attributes, add to T all nontrivial 
+						FD's X -> A that A in X+ and R1
+					3. calculate minimal basis of T
+	~design of relational database schemas 															P81
+		-anomalies
+			-redundancy
+			-update anomalies
+			-deletion anomalies
+		-Boyce-Codd Normal Form (BCNF) 																P84
+			-definition: condition where anomalies can be guaranteed not to exist
+			-the left side of every nontrivial FD must be a superkey
+			-any two-attribute relation is in BCNF
+		-decomposition into BCNF
+			-BCNF decomposition algorithm 20
+				1. check if current R is in BCNF, if not, to 2
+				2. let one BCNF violation FD be X -> Y, compute X+, let R1 be X+ and R2 be X plus
+					all other attributes of R that not in X+
+				3. compute FD's for R1 and R2, say S1, S2
+				4. recursively decompose R1 and R2
+	~chase test 																					P89
+		-three properties we hope a decomposition have
+			-1. elimination of anomalies
+			-2. recoverability of information (say the decomposition has a lossless join)
+			-3. preservation of dependencies
+		-BCNF decomposition algorithm 20 can only meet 1 & 2, impossible to meet all three
+		-natural join: the only way to reconstruct a relation from its projection
+		-chase test
+			-aim: test a decompostion meet recoverability of information
+			-procedures
+				-draw the tableau 																	P93
+				-keep putting FD of original relation into tableau
+				-if all letters of any row is unsubscripted, it has recoverability
+	~third normal form 																				P98
+		-in 3NF: relation has 2 & 3 properties
+		-definition
+			for each nontrivial FD, either the left side is a superkey, or the right side consists
+			of prime attributes only
+		-prime attribute: the attribute is a member of some key
+		-first normal form: the condition that every component of every tuple is an atomic value
+		-second normal form: a less restrictive version of 3NF
+		-synthesis algorithm for 3NF schemas
+			-have a relation R and a set of F of FD
+			1. find a minimal basis for F, say G
+			2. for each FD X -> A in G, use XA as the schema of one of the relations in
+				decomposition, ignore those XAs that are proper subset of others
+			3. if none of relation schemas from step 2 is a superkey for R, add one more relation
+				whose schema is a key for R
+	~fourth normal form
+		-multivalued dependencies (MVD) 															P101
+			-definition
+						A1A2...An -->-> B1B2...Bm
+				if A's are fixed, B's are independent of attributes that are not in A's and B's
+			-rules
+				-trivial MVD's
+					A1A2...An -->-> B1B2...Bm   holds if {B1,B2,...,Bm} ⊆ {A1,A2,...,An}
+				-transistive rule
+					if A1A2...An -->-> B1B2...Bm and B1B2...Bm -->-> C1C2...Ck, then so does
+						A1A2...An -->-> C1C2...Ck, any C's that also in A's must be deleted
+				-FD promotion
+					A1A2...An -> B1B2...Bm, then A1A2...An -->-> B1B2...Bm
+				-complementation rule
+					if A1A2...An -->-> B1B2...Bm, then A1A2...An -->-> C1C2...Ck, 
+					where C's are all attributes not in A's and B's
+				-combining rule
+				-MVD's do not obey splitting rule
+		-fourth normal form 																		P106
+			-definition
+				a relation is in 4NF if whenever A1A2...An -->-> B1B2...Bm is a nontrivial MVD,
+				left side is a superkey
+			-if violated, there could be redundancy that can not be illustrated by FD's
+			-decomposition algorithm to 4NF
+				-1. find a 4NF violation in R, A1A2...An -->-> B1B2 where left side is not a superkey
+				-2. break it into two schemas
+					(a) R1, schema is A's and B's
+					(b) R2, schema is A's and all other attributes not in A's and B's
+				-3. find FD's and MVD's of R1 and R2, recursively decompose R1 and R2
+			-relationships among normal forms 														P109 Figure 12
+	~further useage of chase and tableau
+		-test whether a FD holds 																	P111
+			say this FD is X -> Y, create a tableau with two tuples whose attributes in X are the
+			same, apply all known FD's and MVD's (swaping) to tableau and check if Y are the same, 
+			if true X->Y is true
+		-test whether a MVD holds	  																P113
+			say test X-->-> Y, two tuples have same X, all other attributes different, apply all FD's
+			and for each known MVD A-->->B, double existing tuples with swaping B, see if there is
+			a tuple whose attributes are all unsubscripted, if so X-->->Y is true
+		-projecting MVD's
+			-to check the MVD's of decomposition relations, only check if attributes in the relation
+				is unsubscripted
+			-an FD/MVD whose left side does not contain the left side of any given dependency surely
+				cannot hold
+
+chapter4 high-level database models
+	~entity/relationship model 																		P122
+		-element types
+			-entity sets (▭)
+			-attributes (⬭)
+				properties of the entities, can be primitive type, struct or a set of values
+			-relationships (⬦)
+				connections among two or more entity sets
+		-relationship set 																			P125
+			a relationship that connects n entity sets E1, E2,...,En may have an instance that
+			consists of a finite set of tuples(e1,e2,...,en), each ei is chosen from the current
+			instance of entity set Ei, this tuple set is called relationship set
+		-multiplicity of binary relationships
+			-many-one from E to F
+				each member of E can be connected by R to at most one member of F
+			-one-one
+				R is both many-one from E to F and from F to E
+			-many-many
+				R is neither many-one from E to F or from F to E
+			-arrow (FD)
+				if R is many-one from E to F, place an arrow entering F
+		-arrow in multiway (over 2) relationships 													P127
+			-an arrow points to E means if we select one entity from each of the other entity sets
+				in the relationship, those entities are related to at most one entity in E
+			-limit
+				arrow does not distinguish the exact subsets of other entity sets which have
+				many-one with E, a FD is needed if the exact subset is required
+		-roles
+			label edges between entity set and relationship by names(roles), one entity set could
+			appear two or more times in a relationship, use each line to represent each role
+		-attributes on relationships
+			attributes on relationships should not be determined by any single entity set or it
+			could be attributes of that entity set
+		-converting multiway relationships to binary
+			-connecting entity set
+				introduce a new entity set whose entities are tuples of the relationship set
+		-subclass in E/R model 																		P133 Figure 10
+			-notation: △ ("isa" inside)
+			-a special one-one relationship
+			-one side of the triangle attaches to subclass, the opposite point connected to the
+				superclass
+	~design principles 																				P136
+		-faithfulness
+		-avoiding redundancy
+		-simplicity
+		-choose right relationships
+		-pick right kind of element (choices between attributes and entity set/relationship combinations)
+			-attributes is simper so replace entity set to attributes if possible
+			-replace entity set E by an attribute should meet these properties
+				-all relationships that E involves must have arrows entering E
+				-E has no FD/the only key of E is all the attributes
+				-no relationship involves E more than once
+			-replace method
+				-a many-one relationship R from F to E
+					remove R and make attributes of E be attributes of F
+				-a multiway relationship R
+					make attributes of E be attributes of R
+	~constraints in E/R model
+		-keys
+			-properties
+				-every entity set must have a key
+				-there could be more than one possible key, choose one as primary key
+				-the root entity set of isa-hierarchy should have all attributes for a key
+			-notation: underline attributes
+			-attributes forming the key for an entity set may not all belong to that entity set
+		-referential integrity 																		P146
+			-notation: a rounded arrow ( -) )
+			-a rounded arrow pointing from E to F indicates not only many-one from E to F, but that
+				the entity of F related to a given entity of E must exist
+		-degree constraints 																		P147
+			-a bounding number indicating limits on the number of entities that can be connected
+			-arrow equals to "≤1"
+			-rounded arrow equals to "=1"
+	~weak entity set
+		-causes of weak entity sets
+			-entity sets fall into a hierarchy unrelated to "isa hierarchy" 						P149 Figure 20
+			-for connecting entity sets that have no attributes
+		-key of weak entity set
+			-its own key
+			-keys from supporting entity sets reached by supporting relationships
+		-supporting relationship
+			-must be binary, many one
+			-must have referential integrity(rounded arrow) from weak entity set to supporting entity set
+			-if from weak entity set to supporting entity set there are several different supporting
+				relationships, each relationship is used to supply a copy of supporting entity set's key
+		-notation
+			-weak entity set: rectangle with a double border
+			-supporting many-one relationship: diamond with a double border
+	~convert E/R diagrams to relational designs
+		-entity set (not weak)
+			create a relation with same name and with same set of attributes
+		-relationships (not supporting)
+			-should contain 
+				-its own attributes
+				-key attribute(s) of each entity set involved in the relationship
+			-if one entity set is involved several times in different roles, its key attributes should appear
+				as many times as there are roles
+		-combining relations
+			if relationship R is many-one from E to F, then relations for R and E can be combined to a
+			relation, consisting of
+				-all attributes of E
+				-key attributes of F
+				-all attributes of R
+		-weak entity set
+			-contain attributes
+				-all attributes of itself
+				-all attributes of supporting relationships for it
+				-key attributes of its supporting entity sets
+			-no need to constract relaitons for supporting relationships
+		-subclass structures
+			-conversion strategies
+				-straight-E/R
+					for each entity set in the hierarchy create a relation includes key attributes from the
+					root and any attributes belong to this entity set
+				-object-oriented
+					for each possible subtree that includes the root, create a relation includes all attributes
+					of all entity sets in the subtree
+				-nulls
+					create one relation with all attributes in the hierarchy
+			-no need to create relation for "isa" relationship
+			-comparison
+				-expensive to answer queries involving several relations, so prefer to use nulls 
+				-if a query is general, straight-E/R takes advantages
+				-if a query is specific, object-oriented takes advantages
+				-to reduce the number of relations
+					null better than straight-E/R better than object-oriented
+				-to minimize space and avoid repeating information
+					-minimize space: object-oriented better than nulls better than straight-E/R
+					-repeating information: only straight-E/R repeats information
+	~UML 																							P167
+		-components
+			-class: 	   similar to entity set
+			-keys:  	   "PK" after prime attributes
+			-associations:
+				a binary relationship between classes, has a name below the line, m..n means the 
+				number of objects for each object at the other end can connect
+			-self-association:
+				an association has both ends at the same class, has two names
+			-association class
+				can represent attributes of an association, attached to the middle of association
+			-subclass
+				-primary key comes from the root
+				-category
+					-complete or partial: every object belongs to some subclass means it is complete
+					-disjoint or overlapping: one object can belong to multiple subclasses, it is
+						overlapping
+				-notation: trianglular, open arrow to superclass
+			-aggregation: open diamond replace 0..1, no need to name it
+			-composition: solid diamond replace 1..1, no need to name it
+		-conversion to relations 																	P175
+			-classes to relations
+			-associations to relations
+				attributes include key attributes of two classes and attributes of association class
+			-subclasses to relations
+				-three methods "E/R style", "object-oriented", "nulls"
+				-if a hierarchy disjoint at every level, use object-oriented
+				-if a hierarchy is large and overlapping at some levels, use E/R style
+			-aggregations and compositions
+				should be combined to E (many-one from E to F), add key attributes of F
+			-analog of weak entity set
+				no notation for weak entity set, but for supporting composition draw a box with "PK"
+				in it at the weak entity set end
+	~object definition language (ODL) 																P179
+		-template
+			class <className> (key (k1,k2,...)) {
+				attribute type attrName;
+				...
+				attribute enum Genres
+					{drama, comedy, sciFi, teen} genre;
+				attribute struct Addr
+					{string street, string city} address;
+				relationship Set<anotherClassName> relationshipName
+					inverse anotherClassName::correspondingRelationshipName;
+			};
+		-reason for naming enumerations and structures
+			can refer it elsewhere, even in another class, ClassName::Enum/StructName
+		-inverse relationship
+			indicate connection between two relationships in two different classes
+		-multiplicity of relationships
+			- many-many from C to D
+				in C relationship type is Set<D>, in D relationship type is Set<C>
+			- many-one from C to D
+				in C type is D, in D type is Set<C>
+			- one-one from C to D
+				in C type is D, in D type is C
+		-type system of ODL
+			-primitive types
+			-class names
+			-Set<T>
+			-Bag<T>
+			-List<T>
+			-Array<T,i>
+			-Dictionary<T,S>
+			-Struct {T1 F1,T2 F2,...Tn Fn}
+		-subclass
+			class ClassName extends SuperClassName1 : SuperClassName2{
+				...			
+			};
+		-analog to weak entity sets
+			declare supporting relationships as components of its key
+		-conversion to relations 																	P189
+			-struct attribute in class
+				divide the struct and add all its fields as attributes to relation
+			-set attribute in class
+				turn set to attributes directly could result in anomalies, use decomposition algorithm
+				to solve, or seperate out set as a relation
+			-Bag, List,Array, Dictionary
+				-Bag: add count attribute
+				-List: add index attribute
+				-Array: for fixed-length array, each tuple has length number of array element collections
+				-Dictionary: add attributes for both key and value
+				-always beware anomalies
+			-relationship to relation: only one relation for each pair
+
+chapter5 algebraic and logical query languages
+	~relational operations on bags 																	P199
+		-commercial DBMS's implement relations are bags
+			-reduce the cost to reduce duplicate tuples
+			-allow calculate averages and other operations
+		-union, intersection and difference
+			bag R and S have tuple t n times in R and m times in S
+			-union: 		 t appears n + m times
+			-intersection:   tuple t appears min(n,m) times
+			-difference: 	 t appears max(0,n-m) times
+		-projection and selection: do not delete duplicate tuples
+		-Cartesian product: tuple rs appear m*n times
+	~extended operators of relational algebra 														P207
+		-duplicate elimination
+			δ(R): convert bag R to a set
+		-grouping operator
+			-aggregation operators: SUM, AVG, MIN, MAX, COUNT
+			-γL(R): grouping operator
+				-list L of two types of attributes
+					-grouping attribute
+					-aggregated attribute
+						->: use arrows to rename attributes
+			-δ(R) = γL(R) where L is all attributes of R
+		-extending the projection operator
+			projection lists can have three kinds of elements
+				-a single attribute of R
+				-an expression x->y
+				-an expression E->z
+		-sorting operator
+			-τL(R): sort R according to attribute list L, first consider the first attribute of L, etc.
+			-some operators would mess up the order, but projection and selection remain the order
+		-outerjoins
+			-notation: ⟗ ⟕ ⟖ or a circle above ⋈
+			-preserve dangling tuples from left/right/full arguments after natural join
+		-theta-outerjoin with condition C
+			-notation: ⟗C ⟕C ⟖C or a circle above ⋈C
+			-preserve dangling tuples from left/right/full arguments after theta join
+	~logic query language Datalog(database logic) 													P216
+		-terminology
+			-predicate: the name of a function that returns a boolean value, usually a relation name
+				-extensional predicate: whose relations are stored in a database
+				-intensional predicate: whose relations are computed by rules
+			-atom: a predicate followed by its arguments
+				-arithmetic atoms:
+					a comparison between two arithmetic expressions like x+1 < y+4*z
+				-relational atoms:
+					P(x1,x2,...xn) is TRUE if (a1,a2,...,an) is a tuple of R
+			-rule
+				-example
+					LongMovie(t,y) <- Movies(t,y,l,_,_,_) AND l ≥ 100
+				-consist of
+					-head: a relational atom
+					- <- : read "if"
+					-body
+						-consist of atom(s) called subgoal(s)
+						-subgoal could be relational or arithmetic
+						-subgoals are connected by "AND"
+						-negated subgoal: any subgoal can be preceded by "NOT"
+					-anoymous variables: if a variable only appears once, no need to name it so just
+						represent it with an underscore "_"
+			-query: a collection of rules
+			-safety condition
+				every variable that appears anywhere in the rule must appear in some nonnegated,
+				relational subgoal of the body
+		-datalog rules applied to bags 																P222
+			-if no negated relational subgoals, rules can applied to bags
+			-a relation defined by several rules is the bag-union of each rule
+		-convert datalog to relational algebra 														P224
+			-union (R ∪ S)
+				UNION <- R(a1,a2,...,an)
+				UNION <- S(a1,a2,...,an)
+			-intersection (R ∩ S)
+				INTERSECTION <- R(a1,a2,...,an) AND S(a1,a2,...,an)
+			-difference (R - S)
+				DIFFERENCE <- R(a1,a2,...,an) AND NOT S(a1,a2,...,an)
+			-projection
+				P(t,y,l) <- Movies(t,y,l,g,s,p)
+			-selection
+				-condition AND
+					S(t,y,l,g,s,p) <- Movies(t,y,l,g,s,p) AND l ≥ 100 AND s = 'Fox'
+				-condition OR
+					S(t,y,l,g,s,p) <- Movies(t,y,l,g,s,p) AND l ≥ 100
+					S(t,y,l,g,s,p) <- Movies(t,y,l,g,s,p) AND s = 'Fox'
+			-product (R × S)
+				P(a,b,c,x,y,z) <- R(a,b,c) AND S(x,y,z)
+			-join
+				-join of R(A,B) and S(B,C,D)
+					J(a,b,c,d) <- R(a,b) AND S(b,c,d)
+				-theta-join: expressed as a product followed by a selection
+			-multiple operations with datalog
+				look at the expression tree and create an IDB predicate for each interior node of tree
+		-difference between datalog and relational algebra
+			-datalog does not support grouping and aggregation and some bag operations
+			-datalog supports recursion
+				Path(X,Y) <- Edge(X,Y)
+				Path(X,Y) <- Edge(X,Z) AND Path(Z,Y)
+
+chapter6 database language SQL 																		P237
+	~simple queries
+		-SQL is case insensitive for all words except inside quotes
+		-projection (SELECT clause)
+			-rename columns
+				-simple rename
+					SELECT title AS name, length AS duration
+					...
+				-an expression in place of an attribute, function like an extended projection
+					SELECT title AS name, length*0.0167 AS lengthInHours
+					...
+				-constant as an expression
+					SELECT title, length*0.0167 AS length, 'hrs.' AS inHours
+					...
+		-selection (WHERE clause)
+			-equal symbol "=" instead of "=="
+			-not equal symbol "<>" instead of "!="
+			-arithmetic operators are allowed: (year-1930)*(year-1930)<100
+			-can apply concatenation operator "||" to strings: 'foo'||'bar' has value 'foobar'
+			-bit strings
+				-a string of bits: B'011'
+				-a string of hexadecimal digits: X'7ff'
+			-comparison of Strings
+				-when comparing strings with different declarations, only actual strings are
+					compared, ignores and pad characters
+				-follow lexicographic order
+				-pattern matching
+					-s LIKE p / s NOT LIKE p
+						"-" in p: match any one character in s
+						"%" in p: match any sequence of 0 or more characters in s
+					-double ' represent '
+					-examples
+						...
+						WHERE title LIKE 'Star ____';
+							//
+						...
+						WHERE title LIKE '%''s%';		// map string contains 's
+			-Dates and Times 																		P245
+				-date constant
+					DATE '1948-05-14'
+					pad 0 if month or day is singal bit
+				-time constant
+					TIME '15:00:02.5'
+					if fractions of a second are desired, add .iii... after seconds
+					-time zone (according GMT)
+						TIME '12:00:00-8:00'
+						ahead of: + , behind: -
+				-timestamp constant
+					TIMESTAMP '1948-05-14 12:00:00'
+				-compare
+					a < b is true if a is earlier
+			-NULL
+				-a special value called null value
+				-rules
+					-when operate on a NULL and any value, result in NULL
+					-when compare a NULL with any alue, result in UNKNOWN
+				-not a constant (cannot use NULL as an operand)
+					NULL + 3, NULL = 3 is invalid
+				-test x has or doesn't have value NULL
+					x IS NULL
+					x IS NOT NULL
+			-truth-value UNKNOWN
+				think of TRUE as 1, FALSE as 0, UNKNOWN as 1/2
+				-AND of two truth-values is the minimum of those values
+				-OR of two truth-values is the maximum of those values
+				-NOT of a truth-value(v) is 1-v
+				-pitfalls
+					SELECT *
+					FROM Movies
+					WHERE length <= 120 OR length > 120;
+						///
+					this sql would ignore tuples whose length is NULL
+		-ordering output (ORDER BY clause)
+			-performed after all other clauses except SELECT clause
+			-ORDER BY <list of attributes/expressions>
+			-DESC(descending) & ASC(ascending, defalut)
+			-example
+				...
+				ORDER BY length, title;
+					///
+				...
+				ORDER BY A+B DESC;
+	~queries involving more than one relation (× ∪ ∩ -)
+		-cartesian product in SQL
+			list each relation in FROM clause
+				SELECT name
+				FROM Movies, MovieExec
+				WHERE title = 'Star Wars' AND producerC# = cert#;
+		-disambiguating attributes
+			if multiple relations have same attribute names, distinguish them by adding relationName. in front
+				SELECT MovieStar.name, MovieExec.name
+				FROM MovieStar, MovieExec
+				WHERE MovieStar.address = MovieExec.address;
+		-tuple variables
+			if one relation appears in FROM more than once, give alias called tuple variables
+				SELECT Star1.name, Star2.name
+				FROM MovieStar (AS) Star1, MovieStar (AS) Star2
+				WHERE Star1.address = Star2.address
+					AND Star1.name < Star2.name;
+		-Union, Intersection and Difference of Queries
+			-INTERSECT ∩
+				(SELECT name,address
+				 FROM MovieStar
+				 WHERE gender = 'F')
+				 	INTERSECT
+				(SELECT name,address
+				 FROM MovieExec
+				 WHERE netWorth > 10000000);
+			-EXCEPT -
+				(SELECT name, address FROM MovieStar)
+					EXCEPT
+				(SELECT name, address FROM MovieExec);
+			-UNION ∪
+				(SELECT title, year FROM Movie)
+					UNION
+				(SELECT movieTitle AS title, movieYear AS year FROM StarsIn);
+	~subquery 																						P262
+		-scalar: an atomic value that can appear as one compoent of a tuple
+		-subquery in WHERE clause
+			-subquery whose result tuple has single scalar can use "="
+				SELECT name
+				FROM MovieExec
+				WHERE cert# =
+					(SELECT producerC#
+					 FROM Movies
+					 WHERE title = 'Star Wars'
+					);
+			-SQL operators like ∪, ∩, -, IN, ALL, ANY can only be used by subquery
+				use subquery (SELECT * FROM Foo) as a trick
+			-EXISTS R (NOT EXISTS R)
+				true if and only if R is not empty
+			-s IN R (s can be a scalar or a tuple)
+				true if and only if s is equal to one of values in R
+					SELECT name
+					FROM MovieExec
+					WHERE cert# IN
+						(SELECT producerC#
+						 FROM Movies
+						 WHERE (title, year) IN
+						 	(SELECT movieTitle, movieYear
+						 	 FROM StarsIn
+						 	 WHERE starName = 'Harrison Ford'
+						 	)
+						);
+			-s NOT IN R
+				true if and only if s is equal to no value in R
+			-s > ALL R (NOT s > ALL R)
+				true if and only if s is greater than every vaule in unary relation R, appliable
+				for > < = <> <= >=
+			-s > ANY R (NOT s > ANY R)
+				true if and only if s is greater than at least one vaule in unary relation R, appliable
+				for > < = <> <= >=
+			-correlated subqueries
+				SELECT title
+				FROM Movies Old
+				WHERE year < ANY
+					(SELECT year
+					 FROM Movies
+					 WHERE title = Old.title
+					);
+				-be careful with scoping rules, keeping looking at the surrounding subquery until the
+					attribute is found
+				-use alias if needed
+		-subquery in FROM clause
+			SELECT name
+			FROM MovieExec, (SELECT producerC#
+							 FROM Movies, StarsIn
+							 WHERE title = movieTitle AND
+							 	   year  = movieYear  AND
+							 	   starName = 'Harrison Ford'
+							) Prod
+			WHERE cert# = Prod.producerC#;
+			-give the subquery a tuple-variable alias
+		-SQL JOIN expressions
+			-Cartesian product
+				Movies CROSS JOIN StarsIn;
+			-theta join
+				Movies JOIN StarsIn ON
+					title = movieTitle AND year = movieYear
+			-natural join
+				-automatically pairs tuples according to identical attribute names, project out one of them
+				MovieStar NATURAL JOIN MovieExec;
+			-outerjoin
+				MovieStar NATURAL FULL/LEFT/RIGHT OUTER JOIN MovieExec;
+				-all three types of outerjoin can use ON clause
+					MovieStar NATURAL FULL/LEFT/RIGHT OUTER JOIN MovieExec
+						ON title = movieTitle AND year = movieYear;
+	~full-relation operations 																		P275
+		-eliminating duplicates (SELECT default operated as bags)
+			SELECT DISTINCT name
+		-duplicates in Unions, Intersections and Differences (∪, ∩, - default operated as sets)
+			in order to do bag ∪, ∩, -, add ALL keywords
+			R UNION ALL S
+			R INTERSECT ALL S
+			R EXCEPT ALL S
+		-grouping and aggregation in SQL
+			-aggregation operators
+				-SUM,AVG,MIN,MAX,COUNT
+					-used in SELECT clause
+					SELECT AVG(netWorth)
+					FROM MovieExec;
+				-DISTINCT
+					COUNT(DISTINCT x)
+			-grouping(GROUP BY clause)
+				-followed by a list of grouping attributes, can be
+					-aggregations
+					-attributes appear in GROUP BY clause
+				-equivalent representation of DISTINCT in SELECT
+					SELECT studioName
+					FROM Movies
+					GROUP BY studioName;
+						has the same effect as
+					SELECT DISTINCT studioName
+					FROM Movies;
+				-use a GROUP BY clause in a query about several relations
+					1) evaluate R expressed by FROM and WHERE clauses
+					2) group tuples of R according to attributes in GROUP BY clause
+			-Nulls
+				-NULL value is ignored in any aggregation
+					COUNT(*) and COUNT(A) may have different results for COUNT(A) ignores NULL
+				-NULL is treated as a normal value when forming groups
+				-when perform aggregation except count over an empty bag, result is NULL, count of
+					an empty bag is 0
+			-HAVING clauses
+				-choose groups based on aggregate property of the group
+				-attributes list can only have aggregates and attributes appear in GROUP BY clause
+		-order of clauses in SQL queries
+			SELECT (compulsory)
+			FROM   (compulsory)
+			WHERE
+			GROUP BY
+			HAVING
+			ORDER BY
+	~database modifications 																		P285
+		-insertion
+			INSERT INTO R(A1,A2,...An) VALUES(v1,v2,...vn);
+			-R(A1,A2,...An) can be omited if VALUES(v1,v2,...vn) provides all values in order
+			-if some values are ignored, the corresponding values would be set to default values
+			-can insert subquery into it, replace VALUES(v1,v2,...vn) with the subquery
+			INSERT INTO Studio(name)
+				SELECT DISTINCT studioName
+				FROM Movies
+				WHERE studioName NOT IN
+					(SELECT name
+					 FROM Studio);
+		-deletion
+			DELETE FROM R WHERE <condition>;
+		-updates
+			UPDATE R SET <new-value assignment> WHERE <condition>;
+			-new-value assignment is attribute = expression, seperated by commas
+			UPDATE MovieExec
+			SET name = 'Pres. ' || name
+			WHERE cert# IN (SELECT presC# FROM Studio);
+	~transaction 																					P289
+		-problems and solutions
+			-serializability: one transaction runs at a time, with no overlap
+				seat-choosing problem: query then update to occupy
+			-atomicity: transaction done as a whole
+				bank account transfer: subtract from A and add to B
+		-transaction
+			-start with
+				BEGIN; or
+				START TRANSACTION;
+			-end with
+				COMMIT;   (success)
+				ROLLBACK; (fail)
+		-read-only and read-write
+			mark a transaction as read-only, it can benifit from parallel
+			SET TRANSACTION READ ONLY;  (default for READ UNCOMMITTED)
+			SET TRANSACTION READ WRITE; (default for other three isolation level)
+		-isolation level
+			-dirty read
+				can read data modified by other transaction but haven't been commited
+			-nonrepeatable read
+				within the transaction, a same query may have different result due to the commit of
+				other transaction modification (UPDATE)
+			-phantoms
+				within the transaction, a same query may sense the relation changed by INSERT of other
+				transactions
+			-four isolation level (affect what data that transaction may see)
+				-READ UNCOMMITED
+					SET TRANSACTION READ WRITE
+						ISOLATION LEVEL READ UNCOMMITED;
+					or
+					SET ISOLATION LEVEL READ UNCOMMITED; (default as READ ONLY)
+				-READ COMMITED
+					SET TRANSACTION READ ONLY
+						ISOLATION LEVEL READ COMMITED;
+					or
+					SET ISOLATION LEVEL READ COMMITED; (default as READ WRITE)
+				-REPEATABLE READ
+					SET TRANSACTION READ ONLY
+						ISOLATION LEVEL REPEATABLE READ;
+					or
+					SET ISOLATION LEVEL REPEATABLE READ; (default as READ WRITE)
+
+				-SERIALIZABLE
+					SET TRANSACTION READ ONLY
+						ISOLATION LEVEL READ SERIALIZABLE;
+					or
+					SET ISOLATION LEVEL READ SERIALIZABLE; (default as READ WRITE)
+				-	isolation level | dirty reads | nonrepeatable | reads phantoms
+					----------------------------------------------------------------
+					read uncommited | allowed     |	allowed		  | allowed
+					----------------------------------------------------------------
+					read commited   | not allowed |	allowed		  | allowed
+					----------------------------------------------------------------
+					repeatable read | not allowed |	not allowed	  | allowed
+					----------------------------------------------------------------
+					serializable    | not allowed |	not allowed	  | not allowed
+
+chapter7 constraints and triggers 																	P303
+	~foreign keys (referential-integrity constraint)
+		-declaring
+			-requirement to create foreign key
+				-referenced attribute(s) of second relation must be declared UNIQUE or PRIMARY KEY
+				-values of foreign key in the first relation must be in the referenced attributes of
+					some tuple in the second relation
+				-values of foreign key in th first relation are permitted to be null, even in the second
+					relation no tuple has null value for these attributes
+			-declaring syntax
+				-foreign key is a single attribute
+					REFERENCES <table>(<attribute>)
+						//
+					CREATE TABLE Studio(
+						name CHAR(30) PRIMARY KEY,
+						address VARCHAR(255),
+						presC# INT REFERENCES MovieExec(cert#)
+					);
+				-forgien key is a list of attributes
+					FOREIGN KEY (<attributes>) REFERENCES <table>(<attributes>)
+						//
+					CREATE TABLE Studio(
+						name CHAR(30) PRIMARY KEY,
+						address VARCHAR(255),
+						presC# INT,
+						FOREIGN KEY (presC#) REFERENCES MovieExec(Cert#)
+					);
+		-maintaining referential integrity
+			-insert or update tuples that violate foreign key constraint(no corresponding value in
+				the second relation) in the first relation is exhibited
+			-policies when second relation modification violate foreign key constraint
+				-default policy
+					reject violating modifications
+				-cascade policy
+					if delete some tuple in referenced relation, affected tuples in the first relation
+					would be delete; if update some tuple in referenced relation,affected tuples in the
+					first relation would be updated
+				-set-null policy
+					if modification on referenced relation affects a foreign key value, the corresponding
+					value in the first relation is set to null
+			-assign policy
+				CREATE TABLE Studio (
+					name CHAR(30) PRIMARY KEY,
+					address VARCHAR(255),
+					presC# INT REFERENCES MovieExec(cert#)
+						ON DELETE SET NULL
+						ON UPDATE CASCADE
+				);
+		-deferred checking of constraints
+			-in order to solve modification on circular constraints
+			-setps
+				1) group multiple modification operations into one transaction
+				2) using DEFERRABLE to tell DBMS not to check constraints until the whole transaction is
+					finished and is about to commit
+			-DEFERRABLE, NOT DEFERRABLE(default)
+				CREATE TABLE Studio (
+					name CHAR(30) PRIMARY KEY,
+					address VARCHAR(255),
+					presC# INT UNIQUE
+						REFERENCES MovieExec(cert#)
+						DEFERRABLE INITIALLY DEFERRED
+				);
+				-INITIALLY DEFERRED:  check deferred before commit
+				-INITIALLY IMMEDIATE: check done immediately after each statement
+	~constraints on attributes and tuples															P311
+		-constraints are all defined in create table phrase
+		-not-NULL constraint (insert or update the attribute to null is prohibited)
+			presC# INT REFERENCES MovieExec(cert#) NOT NULL
+		-check constraint
+			-check constraint only affects current relation attribute, even in check there's subquery
+				related to other relation, modification to the other relation would not be checked
+			-condition can be anything that could appear in WHERE clause
+			-activated on insertion to relation or attribute update
+			-attribute-based CHECK constraint
+				presC# INT REFERENCES MovieExec(cert#)
+					CHECK (presC# >= 100000)
+				//
+				gender CHAR(1) CHECK (gender IN ('M','F'))
+			-tuple-based CHECK constraint
+				CREATE TABLE MovieStar (
+					name CHAR(30) PRIMARY KEY,
+					address VARCHAR(255),
+					gender CHAR(1),
+					birthdate DATE,
+					CHECK (gender = 'F' OR name NOT LIKE 'Ms.%')
+				);
+	~modification of constraint 																	P317
+		-name constraint
+			name CHAR(30) CONSTRAINT NameIsKey PRIMARY KEY,
+			CONSTRAINT RightTitle
+				CHECK (gender = 'F' OR name NOT LIKE 'Ms.%');
+		-delete constraint
+			ALTER TABLE MovieStar DROP CONSTRAINT NameIsKey;
+		-add constraint (all tuples must meet the new constraint when it is adds)
+			ALTER TABLE MovieStar ADD CONSTRAINT NoAndro;
+		-set DEFERRED/IMMEDIATE
+			SET CONSTRAINT MyConsraint DEFERRED;
+	~assertions 																					P320
+		-definition
+			an assertion is a boolean-valued SQL expression that must be true at all times
+		-create assertion
+			CREATE ASSERTION <assertion-name> CHECK (<condition>)
+		-example
+			CREATE ASSERTION RichPres CHECK
+				(NOT EXISTS
+					(SELECT Studio.name
+					 FROM Studio, MovieExec
+					 WHERE presC# = cert# AND netWorth < 10000000
+					)
+
+
+				);
+			//
+			CREATE ASSERTION SumLength CHECK (10000 >= ALL
+				(SELECT SUM(lengrh) FROM Movies GROUP BY studioName)
+
+			);
+		-delete assertion
+			DROP ASSERTION <assertion name>
+	~trigger 																						P324
+		-definition
+			a series of actions that are associated with certain events(update,insert,delete)
+		-syntax
+			1) CREATE TRIGGER statement
+				CREATE TRIGGER <trigger name>
+			2) event clause
+				BEFORE/AFTER UPDATE/INSERT/DELETE ON <relation name>
+				-for INSERT, there can be OF to make trigger only sensitive to particular attributes update
+					AFTER UPDATE OF netWorth ON MovieExec
+				-BEFORE/AFTER indicates the if condition in WHEN clause is tested before/after the execution
+					of event
+			3) REFERENCING clause
+				-for INSERT event only NEW ROW/TABLE, for DELETE event only OLD ROW/TABLE
+				-statement-level trigger only has NEW/OLD TABLE, row-level trigger both has TABLE and ROW
+					REFERENCING
+						OLD ROW AS OldTuple,
+						NEW ROW AS NewTuple
+					//
+					REFERENCING
+						OLD TABLE AS OldStuff,
+						NEW TABLE AS NewStuff
+			4) row/statement clause
+				-set trigger to be row-level or statement-level
+				FOR EACH ROW/FOR EACH STATEMENT
+			5) WHEN clause
+				condition, comprised by WHEN and a boolean expression
+			6) action
+				-ordinary SQL statement (UPDATE/INSERT/DELETE)
+				-can be grouped by BEGIN and END
+		-example
+			CREATE TRIGGER NetWorthTrigger
+			AFTER UPDATE OF netWorth ON MovieExec
+			REFERENCING
+				OLD ROW AS OldTuple,
+				NEW ROW AS NewTuple
+			FOR EACH ROW
+			WHEN (OldTuple.netWorth > NewTuple.netWorth)
+				UPDATE MovieExec
+				SET netWorth = OldTuple.netWorth
+				WHERE cert# = NewTuple.cert#;
+			//
+			CREATE TRIGGER AvgNetWorthTrigger
+			AFTER UPDATE OF netWorth ON MovieExec
+			REFERENCING
+				OLD TABLE AS OldStuff,
+				NEW TABLE AS NewStuff
+			FOR EACH STATEMENT
+			WHEN (500000 > (SELECT AVG(netWorth) FROM MovieExec))
+			BEGIN
+				DELETE FROM MovieExec
+				WHERE (name,address,cert#,netWorth) IN NewStuff;
+				INSERT INTO MovieExec
+					(SELECT * FROM OldStuff);
+			END;
+			//
+			CREATE TIRGGER FixYearTrigger
+			BEFORE INSERT ON Moives
+			REFERENCING
+				NEW ROW AS NewRow
+				NEW TABLE AS NewStuff
+			FOR EACH ROW
+			WHEN NewRow.year IS NULL
+			UPDATE NewStuff SET year = 1915;
+
+chapter8 views and indexes
+	~virtual views 																					P333
+		-create views
+			CREATE VIEW <view-name>(attriName1,...attriNameN) AS <view-definition>;
+			-rename attributes is option, <view-definition> is a SQL query
+			CREATE VIEW MovieProd(movieTitle,prodName) AS
+				SELECT title, name
+				FROM Movies, MovieExec
+				WHERE producerC# = cert#;
+		-use views just in the way using a table(stored relation)
+		-modify views
+			-view removal
+				DROP VIEW <view-name>;
+				-unnecessary to meet SQL rules, can be adopted to any view
+			-SQL rules
+				-if a view meet rules (updatable), it can be adopted UPDATE/DELETE/INSERT and modify
+					the base relation
+				-the view is defined by selecting(without DISTINCT) some attributes from one relation
+					R (R can be an updatable view itself)
+				1) WHERE clause not involve R in subquery
+				2) FROM clause only consist of R and no other relations
+				3) SELECT must include enough attributes for inserting 
+					(attributes NOT NULL and has no default etc.)
+			-view insert
+				-would not inculde condition in WHERE clause of view definiton
+				INSERT INTO ParamountMovies
+				VALUES('Star Trek',1979);
+			-delete & update
+				-condition in WHERE clause of view definition would be added automatically
+				CREATE VIEW ParamountMovies AS
+					SELECT studioName, title, year
+					FROM Movies
+					WHERE studioName = 'Paramount';
+				//view definiton
+				DELETE FROM ParamountMovies
+				WHERE title LIKE '%Trek%';
+				//equivalent to
+				DELETE FROM Moives
+				WHERE title LIKE '%Trek%' AND studioName = 'Paramount';
+		-instead-of triggers on views
+			CREATE TRIGGER ParamountInsert
+			INSTEAD OF INSERT ON ParamountMovies
+			REFERENCING
+				NEW ROW AS NewRow
+			FOR EACH ROW
+				INSERT INTO Movies(title,year,studioName)
+				VALUES(NewRow.title, NewRow.year, 'Paramount');
+	~index 																							P342
+		-aim
+			associate a value of an attribute with the location of that tuple to improve query 
+			efficiency by decreasing tuple searching times
+		-declare indexes
+			CREATE INDEX YearIndex ON Movies(title,year);
+			-order of attributes matters
+		-delete indexes
+			DROP INDEX YearIndex;
+		-cost of database is determined by the number of disk page operation
+		-useful indexes
+			-index on relation key attribute(s)
+			-index on part of key attribute(s)
+				only relatively few tuples are related to these attributes
+			-index on attributes on which tuples are clustered
+				means these tuples have a greater chance to cluster on one page
+	~materialized views 																			P351
+		-stored because of frequent use
+		-maintain a materialized view
+			-no need to generate the view again when base table modified, only a limited number of
+				tuples in materialized is influenced
+			-update materialized views periodically instead of after every base table modification
+		-improve query performance by using materialized views
+			-conditions under which replacement part of query Q by the view V is permitted
+				-query from which materialized view V is generated
+					SELECT Lv
+					FROM Rv
+					WHERE Cv
+				-query Q for replacement
+					SELECT Lq
+					FROM Rq
+					WHERE Cq
+			-conditions
+				1) relations in Rv all appear in Rq
+				2) Cq is equivalent to Cv AND C (addtional condition C)
+				3) attributes of relations on Rv that C mentions are on Lv
+				4) attributes on Lq from relations on Rv are also on the list Lv
+			-replacement steps
+				a) replace Rq by V and relations that on Rq but not on Rv
+				b) replace Cq by C
+			-example
+				//base relations
+					Movies(title,year,length,genre,studioName,producerC#)
+					StarsIn(movieTitle,movieYear,starName)
+					MovieExec(name,address,cert#,netWorth)
+				//materialized view
+					SELECT title,year,name
+					FROM Movies,MovieExec
+					WHERE cert# = producerC#
+				//query to replace
+					SELECT starName
+					FROM StarsIn, Movies, MovieExec
+					WHERE movieTitle = title
+					  AND movieYear  = year
+					  AND producerC# = cert#
+					  AND name       = 'Max bialystock';
+				//rewritten query
+					SELECT starName
+					FROM StarsIn, MovieProd
+					WHERE movieTitle = title
+					  AND movieYear  = year
+					  AND name       = 'Max bialystock';
+
+chapter9 SQL in a server environment
+	~three-tier architecture 																		P361
+		-web servers
+			precesses that connect clients to the database system, interact with user
+		-application servers
+			precesses that perform business logic
+			-turn data from database into a response to the request from web-servers
+			-can be several subtiers
+				-object subtier: contain data from database
+				-integration subtier: combine data from queries of different databases
+		-database servers
+			processes run DBMS and perform queries and modifications at the request of application servers
+			-provide connections, these connections are shared among application servers
+	~SQL environment 																				P365
+		-SQL environment
+			-framework under which data exists and SQL operations on data may be executed
+			-can be considered as a DBMS running at some installation
+		-schema
+			-collection of tables, views, assertions, triggers, domains, character sets,
+				collations(specifies which characters are less than others), grant statements,
+				stored procedures
+			-CREATE SCHEMA <schema name> <element declarations>
+			-SET SCHEMA <schema name>
+				to select current schema
+		-catalog
+			-collections of schemas
+			-shcema names must be unique
+			-each catalog contains a special shcema called INFORMATION_SCHEMA which contains
+				information about all schemas in it
+			-SET CATALOG <catalog name>
+		-cluster
+			-collection of catalogs
+			-each user has an associated cluster, a particular user views a cluster as his database
+		-client and server in SQL environment
+			-SQL clients: application server in three-tier architecture
+			-SQL servers: databases server in three-tier architecture
+		-connection
+			-CONNECT TO <server name> AS <connection name>
+				AUTHORIZATION <name and password>
+			-<server name> is depend on the installation
+			-SQL allows multiple connections to be opened but only one is active at any time
+			-SET CONNECTION conn1;
+			-DISCONNECT conn1;
+		-session
+			-definition
+				SQL operations performed over a connection
+			-each session has a current catalog and a current schema within that catalog
+		-module
+			-SQL term of application program
+			-three kinds of modules
+				-generic SQL interface
+					user types SQL statements 
+				-embedded SQL
+					-embedded SQL statements are turned into suitable function or procedure calls,
+						these compiled programs are called modules
+					-two types
+						-call-level interface (CLI)
+							a library provided and SQL statements ate string arguments of methods in it
+						-directly embedded SQL
+							host-language program with embedded SQL statements is sent to a preprocessor
+				-true module
+					a collection of stored functions or procedures
+			-SQL agent
+				an execution of a module, module and agent is analog to program and process
+	~directly embedded SQL																			P371
+		-SQL inserted into host language
+			-EXEC SQL in front of SQL statement
+			-shared variable
+				allowed to appear in both host-language statemets and SQL statements, when used in SQL
+				statement, they are prefixed by :
+			-SQLSTATE
+				a special variable that is an array of five characters, '00000' means no error,
+				'02000' means a tuple requested is not found
+		-DECLARE section
+			void getStudio() {
+				EXEC SQL BEGIN DECLARE SECTION;
+					char studioName[50], studioAddr[256];
+					char SQLSTATE[6];
+				EXEC SQL END DECLARE SECTION;
+				studioName = "vita student";
+				studioAddr address = "Birmingham";
+				EXEC SQL INSERT INTO Studio(name,address)
+						 VALUES(:studioName, :studioAddr);
+			}
+		-EXEC SQL SELECT
+			-SQL statement that doesn't return a result can be appended after EXEC SQL
+			-single-row select statement
+				use INTO keyword
+				//
+				EXEC SQL SELECT netWorth
+						 INTO :presNetWorth
+						 FROM Studio, MovieExec
+						 WHERE presC# = cert# AND
+						 	   Studio.name = :studioName;
+			-cursors
+				-declaration
+					EXEC SQL DECLARE <cursor name> CURSOR FOR <query>
+					<query> can be select-from-where statement or relation
+				-open and close the cursor
+					EXEC SQL OPEN <cursor name>
+					EXEC SQL CLOSE <cursor name>
+				-fetch a tuple
+					EXEC SQL FETCH FROM <cursor name> INTO <list of variables>
+					if tuples are exhausted, SQLSTATE is set to '02000'
+				-a macro indicating end of ranging
+					#define NO_MORE_TUPLES !(strcmp(SQLSTATE,"02000"))
+				-simple example
+					EXEC SQL DECLARE execCursor CURSOR FOR
+						SELECT netWorth FROM MovieExec;
+
+					EXEC SQL OPEN execCursor;
+					for(i=1; i<15; i++) counts[i] = 0;
+					while(1){
+						EXEC SQL FETCH FROM execCursor INTO :worth;
+						if(NO_MORE_TUPLES) break;
+						digits = 1;
+						while((worth /= 10) >0) digits++;
+						if(digits <= 14) counts[digits]++;
+					}
+					EXEC SQL CLOSE execCursor;
+				-modifications by cursor (keyword WHERE CURRENT OF)
+					EXEC SQL DECLARE execCursor CURSOR FOR MovieExec;
+
+					EXEC SQL OPEN execCursor;
+					while(1){
+						EXEC SQL FETCH FROM execCursor INTO :execName,
+							:execAddr, :certNo, :worth;
+						if(NO_MORE_TUPLES) break;
+						if(worth < 1000)
+							EXEC SQL DELETE FROM MovieExec
+									 WHERE CURRENT OF exeCursor;
+						else
+							EXEC SQL UPDATE MovieExec
+									SET netWorth = 2 * netWorth
+									WHERE CURRENT OF exeCursor;
+					}
+					EXEC SQL CLOSE execCursor;
+		-protecting against concurrent updates 														P379
+			-INSENSITIVE (insensitive to other operations between curosr open and close)
+				EXEC SQL DECLARE execCursor INSENSITIVE CUROSR FOR
+					SELECT netWorth FROM MovieExec;
+			-FOR READ ONLY
+				EXEC SQL DECLARE execCursor CUROSR FOR
+					SELECT netWorth FROM MovieExec FOR READ ONLY;
+				-can run simutaneously with insensitive cursor
+		-dynamic SQL
+			-take a character string as SQL statement <expression>
+			-EXEC SQL PREPARE V FROM <expression>
+			-EXEC SQL EXECUTE V
+			-EXEC SQL EXECUTE IMMEDIATE <expression>
+			//
+				-EXEC SQL PREPARE SQLquery FROM :query;
+					...
+				-EXEC SQL EXECUTE SQLquery;
+					or
+				-EXEC SQL EXECUTE IMMEDIATE :query;
+	~stroed procedures 																				P383
+		-definition
+			persistent stored modules (PSM)
+		-creating PSM functions and procedures
+			-procedures
+				CREATE PROCEDURE <name> (<parameters>)
+					<local declarations>
+					<procedure body>;
+			-parameters in procedures are mode-name-type triples
+				mode can be IN, OUT, INOUT
+			-functions
+				CREATE FUNCTION <name> (<parameters>) RETURNS <type>
+					<local declarations>
+					<procedure body>;
+		-statements
+			-call-statement
+				- CALL <procedure name> (<argument list>);
+					can not call a function, functions are used as in C
+				-three ways to call a procedure
+					1) from a host-language program
+						EXEC SQL CALL Foo(:x,3);
+					2) as a statement of another PSM function or procedure
+					3) as a SQL command issued to generic SQL interface
+						CALL Foo(x,3);
+			-return-statement
+				- RETURN <expression>;
+					-only appear in a function, set the return-value
+					-does not terminate the function, can be changed by another return statement afterwards
+			-declarations of local variables
+				- DECLARE <name> <type>;
+			-assignment statement
+				SET <variable> = <expression>;
+			-statement groups
+				surround alist of statements ended by semicolons by BEGIN and END
+			-statement labels
+				label a statement by prefixing it with a name and a colon
+		-branching statement
+			-	IF <condition>
+				THEN <statement list>
+				ELSEIF <condition>
+				THEN <statement list>
+				ELSEIF
+					...
+				ELSE <statement list>
+				END IF;
+		-loops																						P388
+			-basic loop
+				loop label: LOOP
+					...
+					IF ...
+					THEN LEAVE <loop label> END IF
+					<statement list>
+				END LOOP;
+			-example
+				movieLoop: LOOP
+					FETCH FROM MovieCurosr INTO newLength;
+					IF Not_Found THEN LEAVE movieLoop END IF;
+					SET movieCount = movieCount + 1;
+					SET mean = mean + newLength;
+					SET variance = variance + newLength * newLength;
+				END LOOP;
+			-for-loop
+				FOR <loop name> AS <cursor name> CURSOR FOR
+					<query>
+				DO
+					<statement list>
+				END FOR;
+				-no need to declare a cursor, open&close it, empty result detecting
+				-names used for attributes in the result of the query are treated as local variables
+			-example
+				FOR movieLoop AS MovieCursor CURSOR FOR
+					SELECT length FROM Movies WHERE studioName = s;
+				DO
+					SET movieCount = movieCount + 1;
+					SET mean = mean + length;
+					SET variance = variance + length * length;
+				END FOR;
+		-exceptions
+			-indicate error conditions by setting nonzero SQLSTATE
+			-handler
+				DECLARE <where to go next> HANDLER FOR <condition list>
+					<statement>
+				-choices for where to go
+					-CONTINUE
+					-EXIT: leaves the BEGIN...END block in which the handler is declared
+					-UNDO: changes made so far are undone
+				-example
+					CREATE FUNCTION GetYear(t VARCHAR(255)) RETURNS INTEGER
+					DECLARE Not_Found CONDITION FOR SQLSTATE '02000';
+					DECLARE Too_Many CONDITION FOR SQLSTATE '21000';
+					BEGIN
+						DECLARE EXIT HANDLER FOR Not_Found, Too_Many
+							RETURN NULL;
+						RETURN (SELECT year FROM Movies WHERE title = t);
+					END;
+	~call-level interface 																			P396
+		-should include sqlcli.h
+		-records (structs in C)
+			-environment
+				-handle: SQLHENV
+			-connection
+				-handle: SQLHDBC
+			-statement
+				-handle: SQLHSTMT
+			-description
+				-handle: SQLHDESC
+			-SQLAllocHandle(hType,hIn,hOut)
+				-hType: the type of handle desired
+					SQL_HANDLE_ENV, SQL_HANDLE_DBC, SQL_HANDLE_STMT for new environment, connection, statement
+				-hIn: higher level element in which new element lives
+					-SQL_NULL_HANDLE for new environment
+					-for new connection, it's handle of the environment it belongs
+					-for new statement, it's handle of the connection it belongs
+				-hOut: address of the handle returned
+				-SQLRETURN: return value, 0 if no error
+			-example to create a new environemnt, a new connection and a new statement
+				#include <sqlcli.h>
+				SQLHENV myEnv;
+				SQLHDBC myCon;
+				SQLHSTMT execStat;
+				SQLRETURN errorCode1, errorCode2, errorCode3;
+				errorCode1 = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&myEnv);
+				if(!errorCode1){
+					errorCode2 = SQLAllocHandle(SQL_HANDLE_DBC,myEnv,&myCon);}
+				if(!errorCode2){
+					errorCode3 = SQLAllocHandle(SQL_HANDLE_STMT,myCon,&execStat);}
+		-processing statements
+			-SQLPrepare(sh,st,sl)
+				-sh: a statement handle
+				-st: a pointer to a SQL statement, a character string
+				-sl: length for st, use SQL_NTS to determin automatically
+			-SQLExecute(sh)
+			-SQLExecDirect(sh,st,sl)
+			-example
+				SQLPrepare(execStat, "SELECT netWorth FROM MovieExec",SQL_NTS);
+				SQLExecute(execstat);
+				//or
+				SQLExecDirect(execStat, "SELECT netWorth FROM MovieExec",SQL_NTS);
+		-fetching data from a query result
+			-SQLFetch(sh)
+				-if return value == SQL_NO_DATA, all tuples have been fetched
+			-SQLBindCol(sh,colNo,colType,pVar,varSize,varInfo)
+				-sh: statement handle
+				-colNo: number of components of the fetched tuple
+				-colType: 
+					-SQL_CHAR for character arrays and strings
+					-SQL_INTEGER for integers
+				-pVar: a pointer to variable/array where values are to be placed
+				-varSize: length in bytes of pVar
+				-varInfo: a pointer to an integer to provide additional information
+			-example
+				SQLPrepare(execStat,"SELECT netWorth FROM MovieExec", SQL_NTS);
+				SQLExecute(execStat);
+				SQLBindCol(execStat,1,SQL_INTEGER,&worth,sizeof(worth),&worthInfo);
+				while(SQLFetch(execStat) != SQL_NO_DATA){
+					digits = 1;
+					while((worth /= 10) > 0) digits++;
+					if(digits <= 14) counts[digits]++;
+				}
+		-passing parameters to queries
+			-replace parameters in SQL statement of SQLPrepare with "?"
+			-use SQLBindParamter to bind values, some parameters are skipped here
+			-example
+				SQLPrepare(myStat,"INSERT INTO Studio(name, address) VALUES (?,?)",SQL_NTS);
+				SQLBindParameter(myStat,1,...,studioName,...);
+				SQLBindParameter(myStat,2,...,studioAddr,...);
+				SQLExecute(myStat);
+	~JDBC
+		-include line
+			import java.sql.*;
+		-load a driver, then a class DriverManager is available, analog to environment
+			Class.forName(<driver name>);
+			-driver name example: "com.mysql.jdbc.Driver"
+		-establish a connection
+			Connection <connection name> = DriverManager.getConnection(<URL>,<user name>,<password>);
+			-URL for the database which to connect
+				-example:
+					jdbc:mysql://<host name>/<database name>
+		-statements (all methods of Connection)
+			-create statements
+				-createStatement()
+					returns a Statement object
+				-prepareStatement(Q)
+					returns a PreparedStatement object, Q is a string as SQL query 
+			-execute statements
+				-update here includes all operations except query
+				-executeQuery(Q)
+					applied to a Statement object, returns a ResultSet object, Q is a string as SQL query
+				-executeQuery()
+					applied to a PreparedStatement object, returns a ResultSet object
+				-executeUpdate(U)
+					applied to a Statement object, U is a string as nonquery statement
+				-executeUpdate()
+					applied to a PreparedStatement object
+			-examples
+				//
+				Statement execStat = myCon.createStatement();
+				ResultSet worths = execStat.executeQuery(
+					"SELECT netWorth FROM MovieExec");
+				//
+				PreparedStatement execStat = myCon.prepareStatement(
+					"SELECT netWorth FROM MovieExec");
+				ResultSet worths = execStat.executeQuery();
+				//
+				Statement starStat = myCon.createStatement();
+				starStat.executeUpdate(
+					"INSERT INTO StarsIn VALUES('Remember the Titans',2000,'Denzel Washington')");
+				//
+				PreparedStatement starStat = myCon.prepareStatement(
+					"INSERT INTO StarsIn VALUES('Remember the Titans',2000,'Denzel Washington')");
+				starStat.executeUpdate();
+		-cursor operations (methods of ResultSet)
+			-next()
+				move to the next tuple, return FALSE if there is no next tuple
+			-getString(i), getInt(i), getFloat(i)
+				return the ith component of the current tuple
+			-example
+				while(worths.next()){
+					int worth = worths.getInt(1);
+				}
+		-parameter passing (methods of PreparedStatement)
+			-setString(i,v), setInt(i,v)
+			-example
+				PreparedStatement studioStat = myCon.prepareStatement(
+					"INSERT INTO Studio(name,address) VALUES(?,?)");
+				studioStat.setString(1,studioName);
+				studioStat.setString(2,studioAddr);
+				studioStat.executeUpdate();
+
+chapter13 secondary storage management
+
+
+
+
+
+
+
+
+
+
+
